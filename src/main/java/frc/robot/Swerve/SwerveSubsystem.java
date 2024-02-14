@@ -2,9 +2,14 @@ package frc.robot.Swerve;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Collector;
+
+import frc.robot.PhotonCameraWrapper;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -34,12 +39,13 @@ public class SwerveSubsystem extends SubsystemBase{
 
     private final Pigeon2 m_gyro = new Pigeon2(25);
 
-    // private SwerveDriveOdometry swerveOdometry;
     private SwerveDriveKinematics m_kinematics;
-    // private SwerveDriveState m_state;
+
     private Field2d m_field;
     public Matrix<N3,N1> stateStdDevs = VecBuilder.fill(0.1,0.1,0.1); //values uncertain
     public Matrix<N3,N1> visionMeasurementStdDevs = VecBuilder.fill(0.9,0.9,0.9); //values uncertain
+
+    public PhotonCameraWrapper pcw;
 
 
 
@@ -72,6 +78,8 @@ public class SwerveSubsystem extends SubsystemBase{
         SmartDashboard.putData("Field", m_field);
 
         var pigeon2YawSignal = m_gyro.getYaw();
+
+        pcw = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
     }
 
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
@@ -193,6 +201,14 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public void updateOdometry(){
         m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
+        Optional<EstimatedRobotPose> result = 
+        pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+
+        if (result.isPresent()) {
+            EstimatedRobotPose camPose = result.get();
+            m_poseEstimator.addVisionMeasurement(
+                    camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
+        }
         
     }
 
