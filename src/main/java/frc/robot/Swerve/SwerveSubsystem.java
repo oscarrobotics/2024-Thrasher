@@ -47,6 +47,8 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public PhotonCameraWrapper pcw;
 
+    static SwerveSubsystem instance;
+
 
 
     private final SwerveModule[] m_modules = new SwerveModule[]{
@@ -212,6 +214,13 @@ public class SwerveSubsystem extends SubsystemBase{
         
     }
 
+    public static SwerveSubsystem getInstance() {
+        if(instance == null){
+            instance = new SwerveSubsystem();
+        }
+        return instance;
+    }
+   
     @Override
     public void periodic(){
         updateOdometry();

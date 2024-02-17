@@ -14,10 +14,13 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Swerve.SwerveSubsystem;
 
 public class PhotonCameraWrapper {
     private PhotonCamera photonCamera;
     private PhotonPoseEstimator photonPoseEstimator;
+
+    static PhotonCameraWrapper instance; 
 
     public PhotonCameraWrapper(String cameraName, Transform3d cameraOffset){
         photonCamera = new PhotonCamera(cameraName);
@@ -35,6 +38,13 @@ public class PhotonCameraWrapper {
         }
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
         return photonPoseEstimator.update();
+    }
+
+    public static PhotonCameraWrapper getInstance(){
+        if(instance == null){
+            instance = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
+        }
+        return instance;
     }
 
 }
