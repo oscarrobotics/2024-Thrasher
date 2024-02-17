@@ -214,6 +214,10 @@ public class SwerveSubsystem extends SubsystemBase{
         
     }
 
+    public void stop() {
+		drive(0, 0, 0, true, true);
+	}
+
     public static SwerveSubsystem getInstance() {
         if(instance == null){
             instance = new SwerveSubsystem();
