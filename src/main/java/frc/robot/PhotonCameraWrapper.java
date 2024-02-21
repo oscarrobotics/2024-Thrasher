@@ -40,11 +40,11 @@ public class PhotonCameraWrapper {
         return photonPoseEstimator.update();
     }
 
-    public static PhotonCameraWrapper getInstance(){
-        if(instance == null){
-            instance = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
-        }
-        return instance;
-    }
+    // public static PhotonCameraWrapper getInstance(){
+    //     if(instance == null){
+    //         instance = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
+    //     }
+    //     return instance;
+    // }
 
 }

@@ -45,7 +45,7 @@ public class SwerveSubsystem extends SubsystemBase{
     public Matrix<N3,N1> stateStdDevs = VecBuilder.fill(0.1,0.1,0.1); //values uncertain
     public Matrix<N3,N1> visionMeasurementStdDevs = VecBuilder.fill(0.9,0.9,0.9); //values uncertain
 
-    public PhotonCameraWrapper pcw;
+    // public PhotonCameraWrapper pcw;
 
     static SwerveSubsystem instance;
 
@@ -81,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
         var pigeon2YawSignal = m_gyro.getYaw();
 
-        pcw = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
+        // pcw = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
     }
 
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
@@ -203,14 +203,15 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public void updateOdometry(){
         m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
-        Optional<EstimatedRobotPose> result = 
-        pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
+        
+        // Optional<EstimatedRobotPose> result = 
+        // pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
 
-        if (result.isPresent()) {
-            EstimatedRobotPose camPose = result.get();
-            m_poseEstimator.addVisionMeasurement(
-                    camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
-        }
+        // if (result.isPresent()) {
+        //     EstimatedRobotPose camPose = result.get();
+        //     m_poseEstimator.addVisionMeasurement(
+        //             camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
+        // }
         
     }
 

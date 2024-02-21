@@ -14,7 +14,6 @@ import frc.robot.PhotonCameraWrapper;
 public class MoveToPose extends Command {
     
     public final SwerveSubsystem m_swerve;
-    public final PhotonCameraWrapper m_vision;  //Not sure how to get camera info from PCW
 
     // public final PIDController translatePID, strafePID, rotatePID;
 
@@ -29,7 +28,6 @@ public class MoveToPose extends Command {
 
     public MoveToPose(Pose2d desiredPose){
         this.m_swerve = SwerveSubsystem.getInstance();
-        this.m_vision = PhotonCameraWrapper.getInstance();
 
         // this.translatePID = new PIDController(0, 0, 0);
         // this.strafePID = new PIDController(0, 0, 0);
@@ -80,9 +78,6 @@ public class MoveToPose extends Command {
         return rotVel;
     }
 
-    public double getVx(){
-        return xvelocity;
-    }
     @Override
     public void initialize(){                   //Vizualizes camera on Shuffleboard
         CameraServer.startAutomaticCapture();
