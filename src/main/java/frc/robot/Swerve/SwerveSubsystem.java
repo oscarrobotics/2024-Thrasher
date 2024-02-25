@@ -49,15 +49,13 @@ public class SwerveSubsystem extends SubsystemBase{
 
     static SwerveSubsystem instance;
 
-    private final SwerveModule[] m_modules = new SwerveModule[]{
+    public final SwerveModule[] m_modules = new SwerveModule[]{
             new SwerveModule("Rear Left", 0, SwerveConstants.Mod0.constants),
             new SwerveModule("Front Left", 1, SwerveConstants.Mod1.constants),
             new SwerveModule("Rear Right", 2,  SwerveConstants.Mod2.constants),
             new SwerveModule("Front Right", 3, SwerveConstants.Mod3.constants),
     };
-    public SwerveDrivePoseEstimator m_poseEstimator ;
-
-
+    public SwerveDrivePoseEstimator m_poseEstimator;
 
     public SwerveSubsystem(){
 
@@ -121,6 +119,13 @@ public class SwerveSubsystem extends SubsystemBase{
 		}
 		return positions;
 	}
+
+    // public SwerveModuleState[] getModuleAngles(){
+    //     SwerveModuleState[] angle = new SwerveModuleState[4];
+    //     for(SwerveModule mod : m_modules) {
+    //         angle[mod.moduleNumber] = mod.getAngle();
+    //     }
+    // }
 
     public void setModuleStates(SwerveModuleState[] desiredStates, boolean isOpenLoop, boolean steerInPlace){
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, 14);
