@@ -28,12 +28,35 @@ public class Vision {
         kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
         m_frontTagCam, kFrontTagCamLocation);
 
+
     private final PhotonCamera m_rearTagCam = new PhotonCamera("rearTag");
     private final PhotonPoseEstimator m_rearTagEst = new PhotonPoseEstimator(
         kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         m_rearTagCam, kRearTagCamLocation);
+
             
     private final PhotonCamera m_frontObjCam = new PhotonCamera("frontObjCam");
+
+    private final PhotonCamera m_rearObjCam = new PhotonCamera("rearObjCam");
+
+    
+    private final PhotonCamera m_rightTagCam = new PhotonCamera("rightTag");
+    private final PhotonPoseEstimator m_rightTagEst = new PhotonPoseEstimator(
+        kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
+        m_rightTagCam, kRightTagCamLocation);
+
+
+    private final PhotonCamera m_leftTagCam = new PhotonCamera("leftTag");
+    private final PhotonPoseEstimator m_leftTagEst = new PhotonPoseEstimator(
+        kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+        m_rearTagCam, kLeftTagCamLocation);
+
+            
+    private final PhotonCamera m_rightObjCam = new PhotonCamera("rightObjCam");
+
+    private final PhotonCamera m_leftObjCam = new PhotonCamera("leftObjCam");
+
+
 
     public Vision(Consumer<VisionMeasurement> visionMeasurementConsumer) {
         m_visionMeasurementConsumer = visionMeasurementConsumer;
