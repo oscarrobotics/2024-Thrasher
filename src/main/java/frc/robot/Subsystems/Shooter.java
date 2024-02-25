@@ -8,28 +8,65 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkFlexExternalEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase{
     //2 NEO Vortex Flexes for Shooter
     //Absolute Encoder
-    public CANSparkFlex m_shootMotor;
-    public CANSparkFlex m_rearMotor;
+    public CANSparkFlex m_leftShootMotor;
+    public CANSparkFlex m_rightShootMotor;
+    public TalonFX m_shootPivotMotor;
 
-    public AbsoluteEncoder m_absoluteEncoder;
+    public DutyCycleEncoder m_absoluteEncoder;
+
+    TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(1,1);
+    ProfiledPIDController m_controller = 
+        new ProfiledPIDController(0, 0, 0, m_constraints, 0.02); 
+    
+    DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
+    double position = m_absoluteEncoder.getAbsolutePosition();
 
     public Shooter(){
-        m_shootMotor = new CANSparkFlex(0, MotorType.kBrushless);
-        m_absoluteEncoder = m_shootMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        m_leftShootMotor = new CANSparkFlex(0, MotorType.kBrushless);
+        m_rightShootMotor = new CANSparkFlex(1, MotorType.kBrushless);
+        
+        m_shootPivotMotor = new TalonFX(0, "rio");
+
+        m_absoluteEncoder = new DutyCycleEncoder(0);
+    }
+
+    //debugging --> encoder output, control the motor, PID values
+
+    /* SHOOTER PIVOT */
+    public double getPivotAbsPosition(){
+        return m_absoluteEncoder.getAbsolutePosition();
+    }
+
+    public double getPivotAngle(){
+        return m_absoluteEncoder.get();
+    }
+
+    public void setTargetAngle(double angle){
+        m_controller.setGoal(angle);
     }
 
     @Override
     public void periodic(){
+        m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
     }
 }

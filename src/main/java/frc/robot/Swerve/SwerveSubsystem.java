@@ -49,8 +49,6 @@ public class SwerveSubsystem extends SubsystemBase{
 
     static SwerveSubsystem instance;
 
-
-
     private final SwerveModule[] m_modules = new SwerveModule[]{
             new SwerveModule("Rear Left", 0, SwerveConstants.Mod0.constants),
             new SwerveModule("Front Left", 1, SwerveConstants.Mod1.constants),

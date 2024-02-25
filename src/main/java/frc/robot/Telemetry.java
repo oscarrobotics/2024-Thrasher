@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -91,28 +92,40 @@ public class Telemetry {
         });
     };
 
-    // double currentTime = m_Timer.get();
-    // double diffTime = currentTime-lastTime;
-    // lastTime = currentTime;
-    // // Translation2d distanceDiff = pose.minus(m_lastPose).getTranslation();
-    // m_lastPose = pose;
+    public void telemeterize(SwerveDriveState state) {
+        /* Telemeterize the pose */
+        Pose2d pose = state.Pose;
+        fieldTypePub.set("Field2d");
+        fieldPub.set(new double[] {
+            pose.getX(),
+            pose.getY(),
+            pose.getRotation().getDegrees()
+        });
 
-    // Translation2d velocities = distanceDiff.div(diffTime);
+        /* Telemeterize the robot's general speeds */
+        double currentTime = m_Timer.get();
+        double diffTime = currentTime - lastTime;
+        lastTime = currentTime;
+        Translation2d distanceDiff = pose.minus(m_lastPose).getTranslation();
+        m_lastPose = pose;
 
-    //     speed.set(velocities.getNorm());
-    //     velocityX.set(velocities.getX());
-    //     velocityY.set(velocities.getY());
-    //     odomPeriod.set(state.OdometryPeriod);
+        Translation2d velocities = distanceDiff.div(diffTime);
 
-        // /* Telemeterize the module's states */
-        // for (int i = 0; i < 4; ++i) {
-        //     m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
-        //     m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
-        //     m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+        speed.set(velocities.getNorm());
+        velocityX.set(velocities.getX());
+        velocityY.set(velocities.getY());
+        odomPeriod.set(state.OdometryPeriod);
 
-        //     SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
-        // }
-    // }
+        /* Telemeterize the module's states */
+        for (int i = 0; i < 4; ++i) {
+            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
+            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
+            m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+
+            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+        }
+    }
+
 
 }
 
