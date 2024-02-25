@@ -23,7 +23,7 @@ public class Telemetry {
     private final double MaxSpeed;
     private final Timer m_Timer;
 
-    public final SwerveSubsystem m_swerve;
+    // public final SwerveSubsystem m_swerve;
     /**
      * Construct a telemetry object, with the specified max speed of the robot
      * 
@@ -33,7 +33,7 @@ public class Telemetry {
     public Telemetry(double maxSpeed) {
         MaxSpeed = maxSpeed;
         m_Timer = new Timer();
-        this.m_swerve = SwerveSubsystem.getInstance();
+        // this.m_swerve = SwerveSubsystem.getInstance();
     }
     
 
@@ -82,8 +82,8 @@ public class Telemetry {
             .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
     };
 
-    public void telemetrize(){
-        Pose2d pose = m_swerve.m_poseEstimator.getEstimatedPosition();
+    public void telemetrize(SwerveSubsystem swerve){
+        Pose2d pose = swerve.m_poseEstimator.getEstimatedPosition();
         fieldTypePub.set("Field2d");
         fieldPub.set(new double[] {
             pose.getX(),
@@ -92,9 +92,16 @@ public class Telemetry {
         });
     };
 
-    public void telemeterize(SwerveDriveState state) {
+    public void telemeterize(SwerveSubsystem swerve) {
         /* Telemeterize the pose */
-        Pose2d pose = state.Pose;
+        // Pose2d pose = state.Pose;
+        // fieldTypePub.set("Field2d");
+        // fieldPub.set(new double[] {
+        //     pose.getX(),
+        //     pose.getY(),
+        //     pose.getRotation().getDegrees()
+        // });
+        Pose2d pose = swerve.m_poseEstimator.getEstimatedPosition();
         fieldTypePub.set("Field2d");
         fieldPub.set(new double[] {
             pose.getX(),
@@ -114,13 +121,13 @@ public class Telemetry {
         speed.set(velocities.getNorm());
         velocityX.set(velocities.getX());
         velocityY.set(velocities.getY());
-        odomPeriod.set(state.OdometryPeriod);
+        // odomPeriod.set(state.OdometryPeriod);
 
         /* Telemeterize the module's states */
         for (int i = 0; i < 4; ++i) {
-            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond / (2 * MaxSpeed));
+            m_moduleSpeeds[i].setAngle(swerve.m_modules[i].getAbsoluteAngle());
+            m_moduleDirections[i].setAngle(swerve.m_modules[i].getAbsoluteAngle());
+            m_moduleSpeeds[i].setLength(swerve.m_modules[i].getDriveVelocity() / (2 * MaxSpeed));
 
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
