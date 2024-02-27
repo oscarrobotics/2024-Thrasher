@@ -20,6 +20,8 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
@@ -28,11 +30,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase{
     //2 NEO Vortex Flexes for Shooter
     //Absolute Encoder
-    public CANSparkFlex m_leftShootMotor;
-    public CANSparkFlex m_rightShootMotor;
-    public TalonFX m_shootPivotMotor;
+    AnalogPotentiometer m_pivPotentiometer;
 
-    public DutyCycleEncoder m_absoluteEncoder;
+    private DigitalInput m_sledBeamBreaker;
+
+    private boolean isStowed;
+    private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
+    private TalonFX m_shootPivotMotor, m_sledPivotMotor;
+
+    private DutyCycleEncoder m_absoluteEncoder;
 
     TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(1,1);
     ProfiledPIDController m_controller = 
@@ -45,14 +51,24 @@ public class Shooter extends SubsystemBase{
         m_leftShootMotor = new CANSparkFlex(0, MotorType.kBrushless);
         m_rightShootMotor = new CANSparkFlex(1, MotorType.kBrushless);
         
-        m_shootPivotMotor = new TalonFX(0, "rio");
+        m_sledPivotMotor = new TalonFX(1);
+        m_shootPivotMotor = new TalonFX(2, "rio");
 
         m_absoluteEncoder = new DutyCycleEncoder(0);
+
+        m_pivPotentiometer = new AnalogPotentiometer(1);
+        m_sledBeamBreaker = new DigitalInput(2);
     }
 
     //debugging --> encoder output, control the motor, PID values
 
-    /* SHOOTER PIVOT */
+    /* SLED */
+    public boolean isInSled(){
+        isStowed = (!m_sledBeamBreaker.get())?true:false;
+        return isStowed;
+    }
+
+    /* SHOOTER */
     public double getPivotAbsPosition(){
         return m_absoluteEncoder.getAbsolutePosition();
     }
