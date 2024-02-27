@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import org.littletonrobotics.urcl.URCL;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -28,6 +31,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     DataLogManager.start();
+    URCL.start();
     m_robotContainer = new RobotContainer();
     DriverStation.startDataLog(DataLogManager.getLog());
 
