@@ -32,9 +32,8 @@ public class Shooter extends SubsystemBase{
     //Absolute Encoder
     AnalogPotentiometer m_pivPotentiometer;
 
-    private DigitalInput m_sledBeamBreaker;
+    private DigitalInput m_shootBeamBreaker;
 
-    private boolean isStowed;
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
     private TalonFX m_shootPivotMotor, m_sledPivotMotor;
 
@@ -50,23 +49,17 @@ public class Shooter extends SubsystemBase{
     public Shooter(){
         m_leftShootMotor = new CANSparkFlex(0, MotorType.kBrushless);
         m_rightShootMotor = new CANSparkFlex(1, MotorType.kBrushless);
-        
+
         m_sledPivotMotor = new TalonFX(1);
         m_shootPivotMotor = new TalonFX(2, "rio");
 
         m_absoluteEncoder = new DutyCycleEncoder(0);
 
         m_pivPotentiometer = new AnalogPotentiometer(1);
-        m_sledBeamBreaker = new DigitalInput(2);
+        m_shootBeamBreaker = new DigitalInput(3);
     }
 
     //debugging --> encoder output, control the motor, PID values
-
-    /* SLED */
-    public boolean isInSled(){
-        isStowed = (!m_sledBeamBreaker.get())?true:false;
-        return isStowed;
-    }
 
     /* SHOOTER */
     public double getPivotAbsPosition(){
