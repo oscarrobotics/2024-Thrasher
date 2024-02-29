@@ -4,6 +4,7 @@ import frc.robot.Constants;
 import frc.robot.PhotonCameraWrapper;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -20,10 +21,14 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -38,6 +43,8 @@ public class Shooter extends SubsystemBase{
     private TalonFX m_shootPivotMotor, m_sledPivotMotor;
 
     private DutyCycleEncoder m_absoluteEncoder;
+
+    private boolean isStowed;
 
     TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(1,1);
     ProfiledPIDController m_controller = 
@@ -61,7 +68,24 @@ public class Shooter extends SubsystemBase{
 
     //debugging --> encoder output, control the motor, PID values
 
-    /* SHOOTER */
+    /* States */
+    public boolean isInSled(){
+        isStowed = (!m_shootBeamBreaker.get())?true:false;
+        return isStowed;
+    }
+
+    /* Velocity */
+      public Command toWheelSpeeds(double velocity){
+        // frontWheelTargetSpeed = velocity.in(Rotations.per(Minute));
+        return runEnd(() -> {
+            m_leftShootMotor.set(velocity);
+            m_rightShootMotor.set(velocity);
+        }, () -> {
+            m_leftShootMotor.set(0);
+            m_leftShootMotor.set(0);
+        });
+    }
+    /* Pivot */
     public double getPivotAbsPosition(){
         return m_absoluteEncoder.getAbsolutePosition();
     }
@@ -74,6 +98,9 @@ public class Shooter extends SubsystemBase{
         m_controller.setGoal(angle);
     }
 
+    /* Commands */
+    //gotta think on what to do here!
+    
     @Override
     public void periodic(){
         m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));

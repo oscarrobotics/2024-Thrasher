@@ -30,6 +30,8 @@ public class Intake extends SubsystemBase{
 
     public Intake(){
         m_intakeBeamBreaker = new DigitalInput(0);
+        m_frontIntakeMotor = new TalonFX(3);
+        m_rearIntakeMotor = new TalonFX(4);
     }
 
        /* SLED */
