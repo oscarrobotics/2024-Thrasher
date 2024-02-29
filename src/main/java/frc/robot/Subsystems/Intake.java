@@ -29,9 +29,7 @@ public class Intake extends SubsystemBase{
      double frontWheelTargetSpeed;
 
     public Intake(){
-        m_intakeBeamBreaker = new DigitalInput(3);
-        m_frontIntakeMotor = new TalonFX(4);
-
+        m_intakeBeamBreaker = new DigitalInput(0);
     }
 
        /* SLED */
@@ -46,7 +44,7 @@ public class Intake extends SubsystemBase{
         // Sled());});
     // }
 
-    public Command toWheelSpeeds(Supplier<Measure<Velocity<Angle>>> vel){ //I heart talons
+    public Command toWheelSpeeds(Supplier<Measure<Velocity<Angle>>> vel){
         // frontWheelTargetSpeed = velocity.in(Rotations.per(Minute));
         return runEnd(() -> {
             var velocity = vel.get();
