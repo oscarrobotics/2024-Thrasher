@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import frc.robot.Subsystems.Shooter;
 import frc.util.AllianceFlipUtil;
 
 public class Constants {
@@ -200,6 +201,8 @@ public class FieldK {
         public static final double kSpinAmt = 0.7;
 
         public static final double kGearRatio = 1;
+
+        public static final double degrees_per_volt = (320/5);
 
         public static final class FlywheelSimK {
             public static final double kMoi = 0.056699046875; // kg m^2

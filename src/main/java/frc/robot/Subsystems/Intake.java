@@ -21,8 +21,8 @@ import static edu.wpi.first.units.Units.Second;
 public class Intake extends SubsystemBase{
     //2 Falcons --> Intake
     public Timer m_timer;
-    public TalonFX m_frontIntakeMotor;
-    public TalonFX m_rearIntakeMotor;
+    public TalonFX m_frontIntakeMotor, m_rearIntakeMotor, m_frontSledMotor, m_rearSledMotor;
+
     public DigitalInput m_intakeBeamBreaker;
     private boolean isStowed;
      private final VelocityVoltage m_request = new VelocityVoltage(0);
@@ -32,6 +32,8 @@ public class Intake extends SubsystemBase{
         m_intakeBeamBreaker = new DigitalInput(0);
         m_frontIntakeMotor = new TalonFX(3);
         m_rearIntakeMotor = new TalonFX(4);
+        m_frontSledMotor = new TalonFX(5);
+        m_rearSledMotor = new TalonFX(6);
     }
 
        /* SLED */
@@ -52,9 +54,13 @@ public class Intake extends SubsystemBase{
             var velocity = vel.get();
             m_frontIntakeMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Second))));
             m_rearIntakeMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Second))));
+            m_frontSledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
+            m_rearSledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
         }, () -> {
             m_frontIntakeMotor.setControl(m_request.withVelocity(0));
             m_rearIntakeMotor.setControl(m_request.withVelocity(0));
+            m_frontSledMotor.setControl(m_request.withVelocity(0));
+            m_rearSledMotor.setControl(m_request.withVelocity(0));
         });
     }
     public Command intake(){
