@@ -42,7 +42,7 @@ import frc.robot.Constants;
 
 public class SwerveSubsystem extends SubsystemBase{
 
-    private final Pigeon2 m_gyro = new Pigeon2(25);
+    private final Pigeon2 m_gyro = new Pigeon2(0);
 
     private SwerveDriveKinematics m_kinematics;
 
@@ -55,10 +55,10 @@ public class SwerveSubsystem extends SubsystemBase{
     static SwerveSubsystem instance;
 
     public final SwerveModule[] m_modules = new SwerveModule[]{
-            new SwerveModule("Rear Left", 0, SwerveConstants.Mod0.constants),
+            new SwerveModule("Front Right", 0, SwerveConstants.Mod0.constants),
             new SwerveModule("Front Left", 1, SwerveConstants.Mod1.constants),
             new SwerveModule("Rear Right", 2,  SwerveConstants.Mod2.constants),
-            new SwerveModule("Front Right", 3, SwerveConstants.Mod3.constants),
+            new SwerveModule("Rear Left", 3, SwerveConstants.Mod3.constants),
     };
     public SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -243,7 +243,7 @@ public class SwerveSubsystem extends SubsystemBase{
         m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), 
         getModulePositions(), 
         new Pose2d(new Translation2d(0,0), 
-        Rotation2d.fromDegrees(180)));
+        Rotation2d.fromDegrees(150)));
 
     }
 

@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase{
     }
     public Command intake(){
         BooleanSupplier weAreStowed = () -> isInSled();
-        return runOnce(() -> {toWheelSpeeds(() -> Rotations.per(Minute).of(7000));}).until(weAreStowed);
+        return runOnce(() -> {toWheelSpeeds(() -> Rotations.per(Minute).of(7000));}).until(weAreStowed).withTimeout(5);
     }
 
     public Command reject(){
@@ -72,6 +72,10 @@ public class Intake extends SubsystemBase{
                 return m_timer.hasElapsed(1);} //idk how much time
             );
         });
+    }
+
+    public boolean get_beam(){
+        return m_intakeBeamBreaker.get();
     }
     //Intake piece cmd
     //Reject piece cmd

@@ -8,6 +8,10 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
@@ -17,7 +21,19 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class Super extends SubsystemBase{
+public class Mechanism extends SubsystemBase{
+    
+    DoublePublisher T_sledPivot;
+    DoublePublisher T_shooterPivot;
+
+    BooleanPublisher T_sledBreak;
+    BooleanPublisher T_shootBreak;
+
+
+
+
+
+
     
     protected final Intake m_intake;
     protected final  Shooter m_shooter;
@@ -25,11 +41,23 @@ public class Super extends SubsystemBase{
     private TalonFX m_sledMotor;
     private final VelocityTorqueCurrentFOC m_request = new VelocityTorqueCurrentFOC(0);
 
-    public Super(Intake intake, Shooter shooter){
-        this.m_intake = intake;
-        this.m_shooter = shooter;
+    public Mechanism(){
+    
+        m_intake = new Intake();
+        m_shooter = new Shooter();
 
         m_sledMotor = new TalonFX(Constants.kSledIntakeId);
+        
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable NT = inst.getTable("Mechanism");
+        
+        T_sledPivot = NT.getDoubleTopic("sledPivot").publish();
+        T_shooterPivot = NT.getDoubleTopic("shootPivot").publish();
+
+        T_sledBreak = NT.getBooleanTopic("SledBreak").publish();
+        T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
+
+
     }
 
     public Command toSledSpeeds(Supplier<Measure<Velocity<Angle>>> vel){
@@ -46,8 +74,9 @@ public class Super extends SubsystemBase{
     public Command intake(){
         Command intake = m_intake.intake();
         Command feed = runSled();
+        
 
-        return Commands.parallel(intake, feed);
+        return Commands.race(intake,feed);
     }
 
     //feed note into shoot cmd
@@ -57,5 +86,18 @@ public class Super extends SubsystemBase{
         Command feed = runSled();
 
         return Commands.parallel(shoot, feed);
+    }
+
+    @Override
+        public void periodic() {
+      
+        T_shootBreak.set(m_shooter.get_beam());
+        T_sledBreak.set(m_intake.get_beam());
+
+        T_shooterPivot.set(m_shooter.getShootPivotAngle());
+        T_sledPivot.set(m_shooter.getSledPivotAngle());
+
+        
+
     }
 }

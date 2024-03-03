@@ -58,16 +58,21 @@ public class Shooter extends SubsystemBase{
 
     private boolean isStowed;
 
-    private TrapezoidProfile.Constraints m_constraints = new TrapezoidProfile.Constraints(1,1);
+    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(1,1);
 
-    private ProfiledPIDController m_controller = 
-        new ProfiledPIDController(0, 0, 0, m_constraints, 0.02); 
+    private ProfiledPIDController m_Tiltcontroller = 
+        new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
+
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(1,1);
+
+    private ProfiledPIDController m_Sledcontroller = 
+        new ProfiledPIDController(0, 0, 0, m_Sledconstraints, 0.02); 
     
     private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
 
     private final PositionVoltage m_request = new PositionVoltage(0);
 
-    private double position = m_absoluteEncoder.getAbsolutePosition();
+    
 
     public Shooter(){
         m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
@@ -79,11 +84,12 @@ public class Shooter extends SubsystemBase{
         // m_sledPivotMotor = new TalonFX(1);
         m_shootPivotMotor = new TalonFX(Constants.kShootPivotId, "rio");
 
-        m_absoluteEncoder = new DutyCycleEncoder(0);
+        m_absoluteEncoder = new DutyCycleEncoder(2);
+        // m_absoluteEncoder.setDistancePerRotation(positionDeg);
 
-        m_pivPotentiometer = new AnalogPotentiometer(1, 300, 0);
+        m_pivPotentiometer = new AnalogPotentiometer(1, 300, -11.9);
 
-        m_shootBeamBreaker = new DigitalInput(3);
+        m_shootBeamBreaker = new DigitalInput(1);
 
         m_leftSledPivotMotor.setControl(new Follower(m_rightSledPivotMotor.getDeviceID(), true));
     }
@@ -114,7 +120,9 @@ public class Shooter extends SubsystemBase{
 
      //actual angle = (actual voltage – 0deg voltage) * degrees_per_volt -> y = mx + b
     public double getSledPivotAngle(){
-        return (m_pivPotentiometer.get()) * ShooterK.degrees_per_volt;
+        return (m_pivPotentiometer.get());
+        //min = 0 with -11.9 ofset
+        //max = 56 with -11.9 ofset
     }
 
     /*Shoot Pivot */ // -> for amp
@@ -125,12 +133,18 @@ public class Shooter extends SubsystemBase{
 
     public double getShootPivotAngle(){
         return m_absoluteEncoder.get();
+        //straight valure = 0.487
+        //maxtiltforward = 0.873
+        //maxtiltbackword = 0.177
     }
 
-    public void setTargetAngle(double angle){
-        m_controller.setGoal(angle);
+    public void setTargetTilt(double angle){
+        m_Tiltcontroller.setGoal(angle);
     }
 
+    public boolean get_beam(){
+        return m_shootBeamBreaker.get();
+    }
 
     /* Commands */
 
@@ -158,6 +172,6 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic(){
-        m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
+        // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
     }
 }
