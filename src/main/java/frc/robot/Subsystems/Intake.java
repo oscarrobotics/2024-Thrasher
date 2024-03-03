@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
@@ -30,8 +31,8 @@ public class Intake extends SubsystemBase{
 
     public Intake(){
         m_intakeBeamBreaker = new DigitalInput(0);
-        m_frontIntakeMotor = new TalonFX(3);
-        m_rearIntakeMotor = new TalonFX(4);
+        m_frontIntakeMotor = new TalonFX(Constants.kFrontIntakeId);
+        m_rearIntakeMotor = new TalonFX(Constants.kRearIntakeId);
     }
 
        /* SLED */

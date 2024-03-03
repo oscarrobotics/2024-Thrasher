@@ -7,6 +7,7 @@ import frc.robot.Swerve.SwerveSubsystem;
 
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
+    private final CommandXboxController m_operator = new CommandXboxController(1);
     
     public final SwerveSubsystem m_swerve = new SwerveSubsystem();
 
@@ -31,6 +32,8 @@ public class RobotContainer {
       )
       
     );
+
+    // m_operator.a().onTrue() -> something to do with shoot or intake
   }
 
 }

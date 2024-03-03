@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Super extends SubsystemBase{
     
@@ -28,7 +29,7 @@ public class Super extends SubsystemBase{
         this.m_intake = intake;
         this.m_shooter = shooter;
 
-        m_sledMotor = new TalonFX(5);
+        m_sledMotor = new TalonFX(Constants.kSledIntakeId);
     }
 
     public Command toSledSpeeds(Supplier<Measure<Velocity<Angle>>> vel){
@@ -49,10 +50,12 @@ public class Super extends SubsystemBase{
         return Commands.parallel(intake, feed);
     }
 
+    //feed note into shoot cmd
+
     public Command shoot(){
         Command shoot = m_shooter.shootNote();
         Command feed = runSled();
-        
+
         return Commands.parallel(shoot, feed);
     }
 }

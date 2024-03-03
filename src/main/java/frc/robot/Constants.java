@@ -39,6 +39,16 @@ public class Constants {
 
       /* Conversion Factors */
       public static final double angleConversionFactor = 360.0 / kGearRatio;
+
+
+      public static final int kFrontIntakeId = 20;
+      public static final int kRearIntakeId = 21;
+      public static final int kSledIntakeId = 22;
+      public static final int kShootPivotId = 23;
+      public static final int kLeftSledPivotId = 24;
+      public static final int kRightSledPivotId = 25;
+      public static final int kLeftShootMotorId = 32;
+      public static final int kRightShootMotorId = 33;
     
 //     public static final class SwerveKinematics{
 

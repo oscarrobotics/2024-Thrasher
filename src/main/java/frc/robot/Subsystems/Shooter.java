@@ -17,6 +17,7 @@ import org.photonvision.PhotonCamera;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -51,7 +52,7 @@ public class Shooter extends SubsystemBase{
     private DigitalInput m_shootBeamBreaker;
 
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
-    private TalonFX m_sledPivotMotor, m_shootPivotMotor;
+    private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor, m_shootPivotMotor;
 
     private DutyCycleEncoder m_absoluteEncoder;
 
@@ -69,17 +70,22 @@ public class Shooter extends SubsystemBase{
     private double position = m_absoluteEncoder.getAbsolutePosition();
 
     public Shooter(){
-        m_leftShootMotor = new CANSparkFlex(0, MotorType.kBrushless);
-        m_rightShootMotor = new CANSparkFlex(1, MotorType.kBrushless);
+        m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
+        m_rightShootMotor = new CANSparkFlex(Constants.kRightShootMotorId, MotorType.kBrushless);
 
-        m_sledPivotMotor = new TalonFX(1);
-        m_shootPivotMotor = new TalonFX(2, "rio");
+        m_leftSledPivotMotor = new TalonFX(Constants.kLeftSledPivotId);
+        m_rightSledPivotMotor = new TalonFX(Constants.kRightSledPivotId);
+
+        // m_sledPivotMotor = new TalonFX(1);
+        m_shootPivotMotor = new TalonFX(Constants.kShootPivotId, "rio");
 
         m_absoluteEncoder = new DutyCycleEncoder(0);
 
         m_pivPotentiometer = new AnalogPotentiometer(1, 300, 0);
 
         m_shootBeamBreaker = new DigitalInput(3);
+
+        m_leftSledPivotMotor.setControl(new Follower(m_rightSledPivotMotor.getDeviceID(), true));
     }
 
     //debugging --> encoder output, control the motor, PID values
@@ -101,18 +107,20 @@ public class Shooter extends SubsystemBase{
             m_leftShootMotor.set(0);
         });
     }
-    /* Pivot */
+    /* Sled Pivot */
     public double getPivotVoltage(){
         return m_pivPotentiometer.get();
-    }
-
-    public double getPivotAbsPosition(){
-        return m_absoluteEncoder.getAbsolutePosition();
     }
 
      //actual angle = (actual voltage – 0deg voltage) * degrees_per_volt -> y = mx + b
     public double getSledPivotAngle(){
         return (m_pivPotentiometer.get()) * ShooterK.degrees_per_volt;
+    }
+
+    /*Shoot Pivot */ // -> for amp
+
+    public double getPivotAbsPosition(){
+        return m_absoluteEncoder.getAbsolutePosition();
     }
 
     public double getShootPivotAngle(){
@@ -123,13 +131,19 @@ public class Shooter extends SubsystemBase{
         m_controller.setGoal(angle);
     }
 
-    /* Commands */
-    //gotta think on what to do here!
 
-    //pivot: turn to target angle
+    /* Commands */
+
+    //isInShooter
+
+    //isAlignedWithFeed
+
+    //TODO: Change to RunEnd cmd(?); Add PID
+
+
     public Command toTargetAngle(Measure<Angle> angle){
         return runOnce(() -> {
-            m_sledPivotMotor.setControl(m_request.withPosition(angle.in(Rotations)));
+            m_rightSledPivotMotor.setControl(m_request.withPosition(angle.in(Rotations)));
             // toWheelSpeeds(pos); 
         });
     }
