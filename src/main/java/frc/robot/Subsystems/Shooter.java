@@ -135,6 +135,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public Command shootNote(){
+        //if aligned, will shoot
         return runOnce(() -> {
             toWheelSpeeds(7000);
         }).until(() -> m_Timer.hasElapsed(1));

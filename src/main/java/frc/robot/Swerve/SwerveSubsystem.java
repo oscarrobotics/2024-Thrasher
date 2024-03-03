@@ -14,6 +14,10 @@ import org.photonvision.EstimatedRobotPose;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -27,6 +31,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -78,7 +83,30 @@ public class SwerveSubsystem extends SubsystemBase{
         var pigeon2YawSignal = m_gyro.getYaw();
 
         // pcw = new PhotonCameraWrapper(Constants.VisionConstants.cameraName, Constants.VisionConstants.robotToCam);
+
+        AutoBuilder.configureHolonomic(
+            this::getPose, 
+            this::resetOdometry, 
+            this::getChassisSpeeds, 
+            this::setChassisSpeeds, 
+
+            new HolonomicPathFollowerConfig(
+                new PIDConstants(0,0,0), 
+                new PIDConstants(0,0,0), 
+                4.5, 
+                0.40411152,
+                 new ReplanningConfig()
+                ), 
+                () -> { 
+                    var alliance = DriverStation.getAlliance(); 
+                    if(alliance.isPresent()){ 
+                        return alliance.get() == DriverStation.Alliance.Red; 
+                    } 
+                    return false;
+                }, 
+                this);
     }
+
 
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
  
@@ -97,11 +125,22 @@ public class SwerveSubsystem extends SubsystemBase{
         setChassisSpeeds(targetChassisSpeeds, isOpenLoop, false, turnCenter);
     }
 
+    public ChassisSpeeds getChassisSpeeds(){
+        return m_kinematics.toChassisSpeeds(getModuleStates());
+    }
+
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean openLoop, boolean steerInPlace){
         setModuleStates(m_kinematics.toSwerveModuleStates(targetChassisSpeeds), openLoop, steerInPlace);
     }
+
+    //turns in center
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean openLoop, boolean steerInPlace, Translation2d turnCenter){
         setModuleStates(m_kinematics.toSwerveModuleStates(targetChassisSpeeds, turnCenter), openLoop, steerInPlace);
+    }
+
+    //for pathplanner
+    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds){
+        setModuleStates(m_kinematics.toSwerveModuleStates(chassisSpeeds), true, false);
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -196,12 +235,20 @@ public class SwerveSubsystem extends SubsystemBase{
         }).withName("Evasive Drive");
     }
 
+    public Pose2d getPose(){
+        return m_poseEstimator.getEstimatedPosition();
+    }
+
     public void resetOdometry(){
         m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), 
         getModulePositions(), 
         new Pose2d(new Translation2d(0,0), 
         Rotation2d.fromDegrees(180)));
 
+    }
+
+    public void resetOdometry(Pose2d pose){
+        m_poseEstimator.resetPosition(getHeading(), getModulePositions(), pose);
     }
 
     public void updateOdometry(){
