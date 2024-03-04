@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -27,6 +29,7 @@ public class Mechanism extends SubsystemBase{
     DoublePublisher T_shooterPivot;
 
     BooleanPublisher T_sledBreak;
+    BooleanPublisher T_inSled;
     BooleanPublisher T_shootBreak;
 
 
@@ -46,7 +49,7 @@ public class Mechanism extends SubsystemBase{
         m_intake = new Intake();
         m_shooter = new Shooter();
 
-        m_sledMotor = new TalonFX(Constants.kSledIntakeId);
+        
         
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable NT = inst.getTable("Mechanism");
@@ -56,19 +59,49 @@ public class Mechanism extends SubsystemBase{
 
         T_sledBreak = NT.getBooleanTopic("SledBreak").publish();
         T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
+        T_inSled = NT.getBooleanTopic("inSled").publish();
+
+        m_sledMotor = new TalonFX(Constants.kSledIntakeId);
+
+        TalonFXConfiguration config = new TalonFXConfiguration();  
+
+        
+        
+        config.Slot0.kP = 0.1;
+        config.Slot0.kI = 0.0;
+        config.Slot0.kD = 0.0;
+        config.Slot0.kV = 0.12;
+
+        config.Voltage.PeakForwardVoltage = 4;
+        config.Voltage.PeakReverseVoltage = -4; 
+
+        StatusCode status = StatusCode.StatusCodeNotInitialized;
+        for (int i = 0; i < 5; ++i) {
+            status = m_sledMotor.getConfigurator().apply(config);
+            if (status.isOK()) break;
+          }
+          if(!status.isOK()) {
+            System.out.println("Could not apply configs, error code: " + status.toString());
+          }
 
 
     }
-
-    public Command toSledSpeeds(Supplier<Measure<Velocity<Angle>>> vel){
-        var velocity = vel.get();
+    
+    // public Command toSledSpeeds(){
+    //     // var velocity = vel.get();   
+        
+    // }
+    // final Supplier<Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(0);
+    // <Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(0);
+    public Command runSled(){
+        // return run( () -> { toSledSpeeds( () -> Rotations.per(Minute).of(0)); } );
         return runEnd(() -> { 
-            m_sledMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Minute))));
+            // m_sledMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Minute))));
+            // m_sledMotor.setControl(m_request.withVelocity(speed.in(Rotations.per(Minute))));
+            m_sledMotor.setControl(m_request.withVelocity(50));
         }, 
         () -> { m_sledMotor.setControl(m_request.withVelocity(0));});
-    }
-    public Command runSled(){
-        return runOnce( () -> { toSledSpeeds( () -> Rotations.per(Minute).of(3000)); } );
+        // return run(()->{System.out.println("sled");}).withTimeout(0.1);
     }
 
     public Command intake(){
@@ -77,16 +110,20 @@ public class Mechanism extends SubsystemBase{
         
 
         return Commands.race(intake,feed);
+        // return intake;
+        // return feed;
+        
+        // return run(()->{System.out.println("intake");}).withTimeout(0.1);
     }
 
     //feed note into shoot cmd
 
-    public Command shoot(){
-        Command shoot = m_shooter.shootNote();
-        Command feed = runSled();
+    // public Command shoot(){
+    //     Command shoot = m_shooter.shootNote();
+    //     Command feed = runSled();
 
-        return Commands.parallel(shoot, feed);
-    }
+    //     return Commands.parallel(shoot, feed);
+    // }
 
     @Override
         public void periodic() {
@@ -96,6 +133,8 @@ public class Mechanism extends SubsystemBase{
 
         T_shooterPivot.set(m_shooter.getShootPivotAngle());
         T_sledPivot.set(m_shooter.getSledPivotAngle());
+        
+        T_inSled.set(m_intake.isInSled());  
 
         
 
