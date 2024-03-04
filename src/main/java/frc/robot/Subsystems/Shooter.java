@@ -15,7 +15,9 @@ import javax.swing.text.Position;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -30,6 +32,10 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
@@ -63,23 +69,65 @@ public class Shooter extends SubsystemBase{
     private ProfiledPIDController m_Tiltcontroller = 
         new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(1,1);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(3,3);
 
     private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0, 0, 0, m_Sledconstraints, 0.02); 
+        new ProfiledPIDController(0.01, 0, 0, m_Sledconstraints, 0.02); 
     
     private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
 
     private final PositionVoltage m_request = new PositionVoltage(0);
+    
+    DoublePublisher T_targetAngle;
+    DoublePublisher T_sledPivotControllerOutput;
+
+    // BooleanPublisher T_sledBreak;
+    // BooleanPublisher T_inSled;
+    // BooleanPublisher T_shootBreak;
+
 
     
 
     public Shooter(){
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable NT = inst.getTable("Shooter");
+        
+        
         m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
         m_rightShootMotor = new CANSparkFlex(Constants.kRightShootMotorId, MotorType.kBrushless);
 
+
+        //sled pivot
         m_leftSledPivotMotor = new TalonFX(Constants.kLeftSledPivotId);
         m_rightSledPivotMotor = new TalonFX(Constants.kRightSledPivotId);
+
+        m_pivPotentiometer = new AnalogPotentiometer(1, 300, -11.9);
+        TalonFXConfiguration pivotConfig = new TalonFXConfiguration();  
+
+        // pivotConfig.Slot0.kP = 0.1;
+        // pivotConfig.Slot0.kI = 0.0;
+        // pivotConfig.Slot0.kD = 0.0;
+        // pivotConfig.Slot0.kV = 0.12;
+
+        pivotConfig.Voltage.PeakForwardVoltage = 2;
+        pivotConfig.Voltage.PeakReverseVoltage = -2; 
+
+        StatusCode pivotStatus = StatusCode.StatusCodeNotInitialized;
+        for (int i = 0; i < 5; ++i) {
+            pivotStatus = m_leftSledPivotMotor.getConfigurator().apply(pivotConfig);
+            if (pivotStatus.isOK()) break;
+          }
+          if(!pivotStatus.isOK()) {
+            System.out.println("Could not apply configs, error code: " + pivotStatus.toString());
+          }
+        m_leftSledPivotMotor.setInverted(true);
+        m_rightSledPivotMotor.setControl(new Follower(Constants.kLeftSledPivotId ,true));
+        
+        m_Tiltcontroller.reset(getSledPivotAngle());
+
+        T_targetAngle = NT.getDoubleTopic("targetAngle").publish();
+        T_sledPivotControllerOutput = NT.getDoubleTopic("sledPivotControllerOutput").publish();
+
 
         // m_sledPivotMotor = new TalonFX(1);
         m_shootPivotMotor = new TalonFX(Constants.kShootPivotId, "rio");
@@ -87,7 +135,7 @@ public class Shooter extends SubsystemBase{
         m_absoluteEncoder = new DutyCycleEncoder(2);
         // m_absoluteEncoder.setDistancePerRotation(positionDeg);
 
-        m_pivPotentiometer = new AnalogPotentiometer(1, 300, -11.9);
+        
 
         m_shootBeamBreaker = new DigitalInput(1);
 
@@ -125,6 +173,13 @@ public class Shooter extends SubsystemBase{
         //max = 56 with -11.9 ofset
     }
 
+    public void setTargetSledPivot(double angle){
+        angle = Math.max(angle, 0);
+        angle = Math.min(angle, 55);
+        T_targetAngle.set(angle);   
+        m_Sledcontroller.setGoal(angle);
+    }
+
     /*Shoot Pivot */ // -> for amp
 
     public double getPivotAbsPosition(){
@@ -133,6 +188,7 @@ public class Shooter extends SubsystemBase{
 
     public double getShootPivotAngle(){
         return m_absoluteEncoder.get();
+
         //straight valure = 0.487
         //maxtiltforward = 0.873
         //maxtiltbackword = 0.177
@@ -173,5 +229,8 @@ public class Shooter extends SubsystemBase{
     @Override
     public void periodic(){
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
+        double sledPivotControllerOutput = m_Sledcontroller.calculate(getSledPivotAngle());
+        T_sledPivotControllerOutput.set(sledPivotControllerOutput);
+        m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput));  
     }
 }

@@ -37,6 +37,8 @@ public class RobotContainer {
     // );
 
     m_driverController.y().onTrue(m_mechanism.intake());
+    m_driverController.povUp().onTrue(m_mechanism.tilt_up());
+    m_driverController.povDown().onTrue(m_mechanism.tilt_down());
     // m_operator.a().onTrue() -> something to do with shoot or intake
   }
 
