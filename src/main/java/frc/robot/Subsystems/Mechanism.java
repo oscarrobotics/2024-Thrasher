@@ -69,13 +69,13 @@ public class Mechanism extends SubsystemBase{
 
         
         
-        config.Slot0.kP = 0.1;
+        config.Slot0.kP = 0.125;
         config.Slot0.kI = 0.0;
         config.Slot0.kD = 0.0;
         config.Slot0.kV = 0.12;
 
-        config.Voltage.PeakForwardVoltage = 4;
-        config.Voltage.PeakReverseVoltage = -4; 
+        config.Voltage.PeakForwardVoltage = 8;
+        config.Voltage.PeakReverseVoltage = -8; 
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
@@ -106,7 +106,7 @@ public class Mechanism extends SubsystemBase{
         return runEnd(() -> { 
             // m_sledMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Minute))));
             // m_sledMotor.setControl(m_request.withVelocity(speed.in(Rotations.per(Minute))));
-            m_sledMotor.setControl(m_request.withVelocity(-30));
+            m_sledMotor.setControl(m_request.withVelocity(-90));
         }, 
         () -> { m_sledMotor.setControl(m_request.withVelocity(0));});
         // return run(()->{System.out.println("sled");}).withTimeout(0.1);
@@ -126,7 +126,10 @@ public class Mechanism extends SubsystemBase{
 
     public Command outtake(){
         Command intake = m_intake.reject();
-        Command feed = runSled();
+        Command feed = runEnd(() -> { 
+            m_sledMotor.setControl(m_request.withVelocity(90)); //Opposite sign
+        }, 
+        () -> { m_sledMotor.setControl(m_request.withVelocity(0));});
 
         return Commands.race(intake, feed);
     }

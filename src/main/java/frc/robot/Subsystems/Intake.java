@@ -110,22 +110,22 @@ public class Intake extends SubsystemBase{
         
         return runEnd(() -> {
            
-            m_frontIntakeMotor.setControl(m_request.withVelocity(20));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(20));
+            m_frontIntakeMotor.setControl(m_request.withVelocity(40));
+            m_rearIntakeMotor.setControl(m_request.withVelocity(40));
             // System.out.println("set motors");
             // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
         }, () -> {
             m_frontIntakeMotor.setControl(m_request.withVelocity(0));
             m_rearIntakeMotor.setControl(m_request.withVelocity(0));
             // m_sledMotor.setControl(m_request.withVelocity(0));
-        }).until(weAreStowed).withTimeout(5);
+        }).until(weAreStowed).withTimeout(2);
         // return run(()->{System.out.println("intake");}).withTimeout(0.1);
     }
 
     public Command reject(){
         return runEnd(() -> {
-            m_frontIntakeMotor.setControl(m_request.withVelocity(10));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(10));
+            m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
+            m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
             // System.out.println("set motors");
             // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
         }, () -> {
