@@ -24,9 +24,12 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkFlexExternalEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -59,11 +62,10 @@ public class Shooter extends SubsystemBase{
     private DigitalInput m_shootBeamBreaker;
 
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
+    private SparkPIDController m_leftPID, m_rightPID;
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor, m_shootPivotMotor;
 
     private DutyCycleEncoder m_absoluteEncoder;
-
-    private boolean isStowed;
 
     private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(1,1);
 
@@ -82,6 +84,8 @@ public class Shooter extends SubsystemBase{
     DoublePublisher T_targetAngle;
     DoublePublisher T_sledPivotControllerOutput;
 
+    boolean isStowed;
+
     // BooleanPublisher T_sledBreak;
     // BooleanPublisher T_inSled;
     // BooleanPublisher T_shootBreak;
@@ -97,6 +101,18 @@ public class Shooter extends SubsystemBase{
         m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
         m_rightShootMotor = new CANSparkFlex(Constants.kRightShootMotorId, MotorType.kBrushless);
 
+        m_leftPID = m_leftShootMotor.getPIDController();
+        m_rightPID = m_rightShootMotor.getPIDController();
+
+        m_leftPID.setP(0.01);
+        m_leftPID.setI(0.000);
+        m_leftPID.setD(0.000);
+        m_leftPID.setFF(0.002);
+
+        m_rightPID.setP(0.01);
+        m_rightPID.setI(0.000);
+        m_rightPID.setD(0.000);
+        m_rightPID.setFF(0.002); //12V / 6000 RPM
 
         //sled pivot
         m_leftSledPivotMotor = new TalonFX(Constants.kLeftSledPivotId);
