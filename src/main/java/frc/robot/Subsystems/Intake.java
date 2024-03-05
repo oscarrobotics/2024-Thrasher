@@ -48,8 +48,8 @@ public class Intake extends SubsystemBase{
         config.Slot0.kD = 0.0;
         config.Slot0.kV = 0.12;
 
-        config.Voltage.PeakForwardVoltage = 4;
-        config.Voltage.PeakReverseVoltage = -4; 
+        config.Voltage.PeakForwardVoltage = 8;
+        config.Voltage.PeakReverseVoltage = -8; 
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
@@ -110,8 +110,8 @@ public class Intake extends SubsystemBase{
         
         return runEnd(() -> {
            
-            m_frontIntakeMotor.setControl(m_request.withVelocity(10));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(10));
+            m_frontIntakeMotor.setControl(m_request.withVelocity(20));
+            m_rearIntakeMotor.setControl(m_request.withVelocity(20));
             // System.out.println("set motors");
             // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
         }, () -> {
@@ -123,13 +123,17 @@ public class Intake extends SubsystemBase{
     }
 
     public Command reject(){
-        return run(
-            () -> {toWheelSpeeds(-10)
-            .until(() -> {
-                return m_timer.hasElapsed(1);} //idk how much time
-            );
-        });
-    }
+        return runEnd(() -> {
+            m_frontIntakeMotor.setControl(m_request.withVelocity(10));
+            m_rearIntakeMotor.setControl(m_request.withVelocity(10));
+            // System.out.println("set motors");
+            // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
+        }, () -> {
+            m_frontIntakeMotor.setControl(m_request.withVelocity(0));
+            m_rearIntakeMotor.setControl(m_request.withVelocity(0));
+            // m_sledMotor.setControl(m_request.withVelocity(0));
+        }).withTimeout(3);
+    };
 
     public boolean get_beam(){
         return m_intakeBeamBreaker.get();

@@ -15,28 +15,29 @@ public class RobotContainer {
     public final Mechanism m_mechanism = new Mechanism();
 
     public RobotContainer(){
-    // m_swerve.setDefaultCommand(
-    //   m_swerve.teleopDrive(
-    //     () -> -m_driverController.getLeftY(),
-    //     () -> -m_driverController.getLeftX(),
-    //     () -> m_driverController.getRightX(),
-    //     () -> true,
-    //     () -> true
-    //   )
-    // );
-    // m_driverController.a().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
-    // m_driverController.b().whileTrue(
-    //   m_swerve.evasiveDrive(
-    //     () -> -m_driverController.getLeftY(),
-    //     () -> -m_driverController.getLeftX(),
-    //     () -> m_driverController.getRightX(),
-    //     () -> true,
-    //     () -> true
-    //   )
+    m_swerve.setDefaultCommand(
+      m_swerve.teleopDrive(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> m_driverController.getRightX(),
+        () -> true,
+        () -> true
+      )
+    );
+    m_driverController.a().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
+    m_driverController.b().whileTrue(
+      m_swerve.evasiveDrive(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> m_driverController.getRightX(),
+        () -> true,
+        () -> true
+      )
       
-    // );
+    );
 
     m_driverController.y().onTrue(m_mechanism.intake());
+    m_driverController.x().onTrue(m_mechanism.outtake());
     m_driverController.povUp().onTrue(m_mechanism.tilt_up());
     m_driverController.povDown().onTrue(m_mechanism.tilt_down());
     // m_operator.a().onTrue() -> something to do with shoot or intake

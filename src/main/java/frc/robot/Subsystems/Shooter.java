@@ -43,6 +43,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,10 +70,10 @@ public class Shooter extends SubsystemBase{
     private ProfiledPIDController m_Tiltcontroller = 
         new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(3,3);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(4,3);
 
     private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0.01, 0, 0, m_Sledconstraints, 0.02); 
+        new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
     
     private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
 
@@ -146,8 +147,7 @@ public class Shooter extends SubsystemBase{
 
     /* States */
     public boolean isInSled(){
-        isStowed = (!m_shootBeamBreaker.get())?true:false;
-        return isStowed;
+        return !m_shootBeamBreaker.get();
     }
 
     /* Velocity */
@@ -220,17 +220,27 @@ public class Shooter extends SubsystemBase{
 
     public Command shootNote(){
         //if aligned, will shoot
-        return runOnce(() -> {
-            toWheelSpeeds(7000);
+       return runEnd(() -> {
+            m_leftShootMotor.set(0.8); //between -1 and 1
+            m_rightShootMotor.set(0.8);
+        }, () -> {
+            m_leftShootMotor.set(0);
+            m_leftShootMotor.set(0);
         }).until(() -> m_Timer.hasElapsed(1));
     }
     //shooter: shoot the note out
 
     @Override
     public void periodic(){
+
+        //really volatile 
+
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
+        
         double sledPivotControllerOutput = m_Sledcontroller.calculate(getSledPivotAngle());
         T_sledPivotControllerOutput.set(sledPivotControllerOutput);
-        m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput));  
+        m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput)); 
+        SmartDashboard.putNumber("Piv outpt", sledPivotControllerOutput);
+        SmartDashboard.putNumber("Angle", getSledPivotAngle()); 
     }
 }
