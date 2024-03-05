@@ -133,7 +133,7 @@ public class Intake extends SubsystemBase{
             m_rearIntakeMotor.setControl(m_request.withVelocity(0));
             // m_sledMotor.setControl(m_request.withVelocity(0));
         }).withTimeout(3);
-    };
+    }
 
     public boolean get_beam(){
         return m_intakeBeamBreaker.get();
