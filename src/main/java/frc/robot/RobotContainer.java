@@ -1,14 +1,18 @@
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Swerve.SwerveSubsystem;
 import frc.robot.Subsystems.Mechanism;
 
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
-    private final CommandXboxController m_operator = new CommandXboxController(1);
+    // private final CommandXboxController m_operator = new CommandXboxController(1);
+    private final CommandGenericHID m_operator = new CommandGenericHID(1);
     
     public final SwerveSubsystem m_swerve = new SwerveSubsystem();
 
@@ -41,6 +45,25 @@ public class RobotContainer {
     m_driverController.povUp().onTrue(m_mechanism.tilt_up());
     m_driverController.povDown().onTrue(m_mechanism.tilt_down());
     // m_operator.a().onTrue() -> something to do with shoot or intake
+      
+    Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
+    Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
+    
+    m_mechanism.setDefaultCommand(
+    
+    
+      m_mechanism.debug_runner(
+    leftslider
+  
+    )
+  );  
   }
+
+
+  
+  public void teleopInit(){
+    // m_swerve.resetOdometry();
+    m_mechanism.m_shooter.resetSledPivot();
+  } 
 
 }

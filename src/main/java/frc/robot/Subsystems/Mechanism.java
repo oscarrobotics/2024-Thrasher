@@ -36,8 +36,8 @@ public class Mechanism extends SubsystemBase{
 
 
 
-    protected final Intake m_intake;
-    protected final  Shooter m_shooter;
+    public final Intake m_intake;
+    public final  Shooter m_shooter;
 
     private TalonFX m_sledMotor;
     private final VelocityVoltage m_request = new VelocityVoltage(0);
@@ -152,6 +152,10 @@ public class Mechanism extends SubsystemBase{
         
     }
 
+    public Command tilt_to(double angle){
+        return runOnce(()->{m_shooter.setTargetSledPivot(angle);}).withTimeout(1);
+    }
+
     //TODO: a way to zero out the pivot angle. Does it need to start at the same angle every time?
     // public Command reset_pivot(){
     //     return runOnce(()->{m_shooter.setTargetSledPivot(0);}).withTimeout(0);
@@ -167,6 +171,13 @@ public class Mechanism extends SubsystemBase{
         return Commands.parallel(shoot, feed);
     }
 
+    public Command debug_runner(Supplier<Double> sledangle){
+        return runEnd(() -> {
+            m_shooter.setTargetSledPivot(sledangle.get());
+        }, () -> {
+            // m_sledMotor.setControl(m_request.withVelocity(0));
+        });
+    }   
     @Override
         public void periodic() {
       

@@ -56,14 +56,14 @@ public class Shooter extends SubsystemBase{
     //Absolute Encoder
     private Timer m_Timer;
 
-    private AnalogPotentiometer m_pivPotentiometer;
-    private double positionDeg;
+    
+ 
 
     private DigitalInput m_shootBeamBreaker;
 
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
     private SparkPIDController m_leftPID, m_rightPID;
-    private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor, m_shootPivotMotor;
+    private TalonFX  m_shootPivotMotor;
 
     private DutyCycleEncoder m_absoluteEncoder;
 
@@ -72,17 +72,10 @@ public class Shooter extends SubsystemBase{
     private ProfiledPIDController m_Tiltcontroller = 
         new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(4,3);
+   
 
-    private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
     
-    private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
-
-    private final PositionVoltage m_request = new PositionVoltage(0);
     
-    DoublePublisher T_targetAngle;
-    DoublePublisher T_sledPivotControllerOutput;
 
     boolean isStowed;
 
@@ -115,35 +108,7 @@ public class Shooter extends SubsystemBase{
         m_rightPID.setFF(0.002); //12V / 6000 RPM
 
         //sled pivot
-        m_leftSledPivotMotor = new TalonFX(Constants.kLeftSledPivotId);
-        m_rightSledPivotMotor = new TalonFX(Constants.kRightSledPivotId);
-
-        m_pivPotentiometer = new AnalogPotentiometer(1, 300, -11.9);
-        TalonFXConfiguration pivotConfig = new TalonFXConfiguration();  
-
-        // pivotConfig.Slot0.kP = 0.1;
-        // pivotConfig.Slot0.kI = 0.0;
-        // pivotConfig.Slot0.kD = 0.0;
-        // pivotConfig.Slot0.kV = 0.12;
-
-        pivotConfig.Voltage.PeakForwardVoltage = 2;
-        pivotConfig.Voltage.PeakReverseVoltage = -2; 
-
-        StatusCode pivotStatus = StatusCode.StatusCodeNotInitialized;
-        for (int i = 0; i < 5; ++i) {
-            pivotStatus = m_leftSledPivotMotor.getConfigurator().apply(pivotConfig);
-            if (pivotStatus.isOK()) break;
-          }
-          if(!pivotStatus.isOK()) {
-            System.out.println("Could not apply configs, error code: " + pivotStatus.toString());
-          }
-        m_leftSledPivotMotor.setInverted(true);
-        m_rightSledPivotMotor.setControl(new Follower(Constants.kLeftSledPivotId ,true));
         
-        m_Tiltcontroller.reset(getSledPivotAngle());
-
-        T_targetAngle = NT.getDoubleTopic("targetAngle").publish();
-        T_sledPivotControllerOutput = NT.getDoubleTopic("sledPivotControllerOutput").publish();
 
 
         // m_sledPivotMotor = new TalonFX(1);
@@ -156,16 +121,13 @@ public class Shooter extends SubsystemBase{
 
         m_shootBeamBreaker = new DigitalInput(1);
 
-        m_leftSledPivotMotor.setControl(new Follower(m_rightSledPivotMotor.getDeviceID(), true));
+        
     }
 
     //debugging --> encoder output, control the motor, PID values
 
     /* States */
-    public boolean isInSled(){
-        return !m_shootBeamBreaker.get();
-    }
-
+    
     /* Velocity */
       public Command toWheelSpeeds(double velocity){
         // frontWheelTargetSpeed = velocity.in(Rotations.per(Minute));
@@ -178,23 +140,10 @@ public class Shooter extends SubsystemBase{
         });
     }
     /* Sled Pivot */
-    public double getPivotVoltage(){
-        return m_pivPotentiometer.get();
-    }
+
 
      //actual angle = (actual voltage – 0deg voltage) * degrees_per_volt -> y = mx + b
-    public double getSledPivotAngle(){
-        return (m_pivPotentiometer.get());
-        //min = 0 with -11.9 ofset
-        //max = 56 with -11.9 ofset
-    }
-
-    public void setTargetSledPivot(double angle){
-        angle = Math.max(angle, 0);
-        angle = Math.min(angle, 55);
-        T_targetAngle.set(angle);   
-        m_Sledcontroller.setGoal(angle);
-    }
+    
 
     /*Shoot Pivot */ // -> for amp
 
@@ -227,12 +176,7 @@ public class Shooter extends SubsystemBase{
     //TODO: Change to RunEnd cmd(?); Add PID
 
 
-    public Command toTargetAngle(Measure<Angle> angle){
-        return runOnce(() -> {
-            m_rightSledPivotMotor.setControl(m_request.withPosition(angle.in(Rotations)));
-            // toWheelSpeeds(pos); 
-        });
-    }
+    
 
     public Command shootNote(){
         //if aligned, will shoot
@@ -252,11 +196,6 @@ public class Shooter extends SubsystemBase{
         //really volatile 
 
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
-        
-        double sledPivotControllerOutput = m_Sledcontroller.calculate(getSledPivotAngle());
-        T_sledPivotControllerOutput.set(sledPivotControllerOutput);
-        m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput)); 
-        SmartDashboard.putNumber("Piv outpt", sledPivotControllerOutput);
-        SmartDashboard.putNumber("Angle", getSledPivotAngle()); 
+   
     }
 }
