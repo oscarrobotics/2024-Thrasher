@@ -90,20 +90,6 @@ public class Intake extends SubsystemBase{
         // Sled());});
     // }
 
-    public Command toWheelSpeeds(double speed){
-        // frontWheelTargetSpeed = velocity.in(Rotations.per(Minute));
-        return runEnd(() -> {
-           
-            m_frontIntakeMotor.setControl(m_request.withVelocity(speed));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(speed));
-            // System.out.println("set motors");
-            // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
-        }, () -> {
-            m_frontIntakeMotor.setControl(m_request.withVelocity(0));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(0));
-            // m_sledMotor.setControl(m_request.withVelocity(0));
-        }).until(weAreStowed).withTimeout(speed);
-    }
     private final BooleanSupplier weAreStowed = () -> isInSled();
     // final Supplier<Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(30);
     public Command intake(){
