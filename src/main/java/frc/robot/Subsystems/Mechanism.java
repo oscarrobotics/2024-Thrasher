@@ -38,19 +38,17 @@ public class Mechanism extends SubsystemBase{
 
     public final Intake m_intake;
     public final  Shooter m_shooter;
+    public final Sled m_sled;
 
     private TalonFX m_sledMotor;
     private final VelocityVoltage m_request = new VelocityVoltage(0);
-    
-
-
 
 
     public Mechanism(){
     
         m_intake = new Intake();
         m_shooter = new Shooter();
-
+        m_sled = new Sled();
         
         
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -113,7 +111,7 @@ public class Mechanism extends SubsystemBase{
     }
 
     public Command intake(){
-        Command intake = m_intake.intake();
+        Command intake = runOnce(() -> {m_intake.intake();}).until(() -> m_sled.isInSled());
         Command feed = runSled();
         
 
@@ -125,7 +123,7 @@ public class Mechanism extends SubsystemBase{
     }
 
     public Command outtake(){
-        Command intake = m_intake.reject();
+        Command intake = runOnce(() -> m_intake.outtake());
         Command feed = runEnd(() -> { 
             m_sledMotor.setControl(m_request.withVelocity(90)); //Opposite sign
         }, 
@@ -135,25 +133,25 @@ public class Mechanism extends SubsystemBase{
     }
 
     public Command tilt_down(){
-        if (m_shooter.getSledPivotAngle()<=50) {
-            return runOnce(()->{m_shooter.setTargetSledPivot(m_shooter.getSledPivotAngle()+5);}).withTimeout(1);
+        if (m_sled.getSledPivotAngle()<=50) {
+            return runOnce(()->{m_sled.setTargetSledPivot(m_sled.getSledPivotAngle()+5);}).withTimeout(1);
             
         }
-        return runOnce(()->{m_shooter.setTargetSledPivot(55);}).withTimeout(1);
+        return runOnce(()->{m_sled.setTargetSledPivot(55);}).withTimeout(1);
         
     }
 
     public Command tilt_up(){
-        if (m_shooter.getSledPivotAngle()>=5) {
-            return runOnce(()->{m_shooter.setTargetSledPivot(m_shooter.getSledPivotAngle()-5);}).withTimeout(1);
+        if (m_sled.getSledPivotAngle()>=5) {
+            return runOnce(()->{m_sled.setTargetSledPivot(m_sled.getSledPivotAngle()-5);}).withTimeout(1);
             
         }
-        return runOnce(()->{m_shooter.setTargetSledPivot(0);}).withTimeout(1);
+        return runOnce(()->{m_sled.setTargetSledPivot(0);}).withTimeout(1);
         
     }
 
     public Command tilt_to(double angle){
-        return runOnce(()->{m_shooter.setTargetSledPivot(angle);}).withTimeout(1);
+        return runOnce(()->{m_sled.setTargetSledPivot(angle);}).withTimeout(1);
     }
 
     //TODO: a way to zero out the pivot angle. Does it need to start at the same angle every time?
@@ -173,7 +171,7 @@ public class Mechanism extends SubsystemBase{
 
     public Command debug_runner(Supplier<Double> sledangle){
         return runEnd(() -> {
-            m_shooter.setTargetSledPivot(sledangle.get());
+            m_sled.setTargetSledPivot(sledangle.get());
         }, () -> {
             // m_sledMotor.setControl(m_request.withVelocity(0));
         });
@@ -182,12 +180,12 @@ public class Mechanism extends SubsystemBase{
         public void periodic() {
       
         T_shootBreak.set(m_shooter.get_beam());
-        T_sledBreak.set(m_intake.get_beam());
+        T_sledBreak.set(m_sled.get_beam());
 
         T_shooterPivot.set(m_shooter.getShootPivotAngle());
-        T_sledPivot.set(m_shooter.getSledPivotAngle());
+        T_sledPivot.set(m_sled.getSledPivotAngle());
         
-        T_inSled.set(m_intake.isInSled());  
+        T_inSled.set(m_sled.isInSled());  
 
         
 

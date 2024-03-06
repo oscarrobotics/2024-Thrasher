@@ -12,7 +12,7 @@ import frc.robot.Subsystems.Mechanism;
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandXboxController m_operator = new CommandXboxController(1);
-    private final CommandGenericHID m_operator = new CommandGenericHID(1);
+    private final ControllerButtons m_operator = new ControllerButtons(1);
     
     public final SwerveSubsystem m_swerve = new SwerveSubsystem();
 
@@ -42,28 +42,28 @@ public class RobotContainer {
 
     m_driverController.y().onTrue(m_mechanism.intake());
     m_driverController.x().onTrue(m_mechanism.outtake());
-    m_driverController.povUp().onTrue(m_mechanism.tilt_up());
-    m_driverController.povDown().onTrue(m_mechanism.tilt_down());
+    // m_driverController.povUp().onTrue(m_mechanism.tilt_up());
+    // m_driverController.povDown().onTrue(m_mechanism.tilt_down());
+    m_operator.getLeftSlider();
     // m_operator.a().onTrue() -> something to do with shoot or intake
       
-    Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
-    Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
+    // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
+    // Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
     
     m_mechanism.setDefaultCommand(
     
     
       m_mechanism.debug_runner(
-    leftslider
-  
-    )
-  );  
+        () -> m_operator.getLeftSlider()
+      )
+    );  
   }
 
 
   
   public void teleopInit(){
     // m_swerve.resetOdometry();
-    m_mechanism.m_shooter.resetSledPivot();
+    m_mechanism.m_sled.resetSledPivot();
   } 
 
 }
