@@ -180,6 +180,11 @@ public class Shooter extends SubsystemBase{
         m_Sledcontroller.setGoal(angle);
     }
 
+    public void resetSledPivot(){
+        m_Sledcontroller.reset(getSledPivotAngle());
+        m_Sledcontroller.setGoal(getSledPivotAngle());    
+    }
+
     /*Shoot Pivot */ // -> for amp
 
     public double getPivotAbsPosition(){

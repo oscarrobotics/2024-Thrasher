@@ -49,7 +49,11 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit(
+  ) {
+    m_robotContainer.teleopInit();
+  } 
+   {}
 
   @Override
   public void teleopPeriodic() {}
