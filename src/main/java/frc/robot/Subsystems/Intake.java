@@ -28,14 +28,14 @@ public class Intake extends SubsystemBase{
     public Timer m_timer;
     public TalonFX m_frontIntakeMotor, m_rearIntakeMotor;
 
-    public DigitalInput m_intakeBeamBreaker;
+    
     private boolean isStowed;
     private final VelocityVoltage m_request = new VelocityVoltage(0);
     
     double frontWheelTargetSpeed;
 
     public Intake(){
-        m_intakeBeamBreaker = new DigitalInput(0);
+        
         m_frontIntakeMotor = new TalonFX(Constants.kFrontIntakeId);
         m_rearIntakeMotor = new TalonFX(Constants.kRearIntakeId);
 
@@ -77,12 +77,7 @@ public class Intake extends SubsystemBase{
     }
 
        /* SLED */
-    public boolean isInSled(){
-        // isStowed = (!m_intakeBeamBreaker.get())?true:false;//// stop this 
-        // return isStowed; // and this
-        return !m_intakeBeamBreaker.get();
-
-    }
+    
 
     // ????????? Genuinely the worst thing I've ever seen
     // public Command stowedInSled(Supplier<Boolean> isStowed){
@@ -90,40 +85,59 @@ public class Intake extends SubsystemBase{
         // Sled());});
     // }
 
-    private final BooleanSupplier weAreStowed = () -> isInSled();
+    public void intake(){
+        m_frontIntakeMotor.setControl(m_request.withVelocity(40));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+    }
+    public void outtake(){
+        m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+    }   
+    public void stop(){
+        m_frontIntakeMotor.setControl(m_request.withVelocity(0));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(0));
+    }
+    public void rollforward(){
+        m_frontIntakeMotor.setControl(m_request.withVelocity(40));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+    
+    }
+    public void rollbackward(){
+        m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+    }
+    
     // final Supplier<Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(30);
-    public Command intake(){
+    // public Command intake(){
         
-        return runEnd(() -> {
+    //     return runEnd(() -> {
            
-            m_frontIntakeMotor.setControl(m_request.withVelocity(40));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(40));
-            // System.out.println("set motors");
-            // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
-        }, () -> {
-            m_frontIntakeMotor.setControl(m_request.withVelocity(0));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(0));
-            // m_sledMotor.setControl(m_request.withVelocity(0));
-        }).until(weAreStowed).withTimeout(2);
-        // return run(()->{System.out.println("intake");}).withTimeout(0.1);
-    }
+    //         m_frontIntakeMotor.setControl(m_request.withVelocity(40));
+    //         m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+    //         // System.out.println("set motors");
+    //         // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
+    //     }, () -> {
+    //         m_frontIntakeMotor.setControl(m_request.withVelocity(0));
+    //         m_rearIntakeMotor.setControl(m_request.withVelocity(0));
+    //         // m_sledMotor.setControl(m_request.withVelocity(0));
+    //     }).until(weAreStowed).withTimeout(2);
+    //     // return run(()->{System.out.println("intake");}).withTimeout(0.1);
+    // }
 
-    public Command reject(){
-        return runEnd(() -> {
-            m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
-            // System.out.println("set motors");
-            // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
-        }, () -> {
-            m_frontIntakeMotor.setControl(m_request.withVelocity(0));
-            m_rearIntakeMotor.setControl(m_request.withVelocity(0));
-            // m_sledMotor.setControl(m_request.withVelocity(0));
-        }).withTimeout(3);
-    }
+    // public Command reject(){
+    //     return runEnd(() -> {
+    //         m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
+    //         m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+    //         // System.out.println("set motors");
+    //         // m_sledMotor.setControl(m_request.withVelocity(0.5 * velocity.in(Rotations.per(Second))));
+    //     }, () -> {
+    //         m_frontIntakeMotor.setControl(m_request.withVelocity(0));
+    //         m_rearIntakeMotor.setControl(m_request.withVelocity(0));
+    //         // m_sledMotor.setControl(m_request.withVelocity(0));
+    //     }).withTimeout(3);
+    // }
 
-    public boolean get_beam(){
-        return m_intakeBeamBreaker.get();
-    }
+    
     //Intake piece cmd
     //Reject piece cmd
 }
