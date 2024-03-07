@@ -40,11 +40,11 @@ public class RobotContainer {
       
     );
 
-    m_driverController.y().onTrue(m_mechanism.intake());
-    m_driverController.x().onTrue(m_mechanism.outtake());
-    // m_driverController.povUp().onTrue(m_mechanism.tilt_up());
-    // m_driverController.povDown().onTrue(m_mechanism.tilt_down());
-    m_operator.getLeftSlider();
+    m_operator.arcadeWhiteLeft().onTrue(m_mechanism.intake());
+    m_operator.arcadeBlackLeft().onTrue(m_mechanism.outtake());
+    m_driverController.povUp().onTrue(m_mechanism.tilt_up());
+    m_driverController.povDown().onTrue(m_mechanism.tilt_down());
+    m_operator.arcadeWhiteRight().onTrue(m_mechanism.shoot());
     // m_operator.a().onTrue() -> something to do with shoot or intake
       
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 

@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusCode;
@@ -40,10 +41,6 @@ public class Mechanism extends SubsystemBase{
     public final  Shooter m_shooter;
     public final Sled m_sled;
 
-    private TalonFX m_sledMotor;
-    private final VelocityVoltage m_request = new VelocityVoltage(0);
-
-
     public Mechanism(){
     
         m_intake = new Intake();
@@ -61,34 +58,6 @@ public class Mechanism extends SubsystemBase{
         T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
         T_inSled = NT.getBooleanTopic("inSled").publish();
 
-        m_sledMotor = new TalonFX(Constants.kSledIntakeId);
-
-        TalonFXConfiguration config = new TalonFXConfiguration();  
-
-        
-        
-        config.Slot0.kP = 0.125;
-        config.Slot0.kI = 0.0;
-        config.Slot0.kD = 0.0;
-        config.Slot0.kV = 0.12;
-
-        config.Voltage.PeakForwardVoltage = 8;
-        config.Voltage.PeakReverseVoltage = -8; 
-
-        StatusCode status = StatusCode.StatusCodeNotInitialized;
-        for (int i = 0; i < 5; ++i) {
-            status = m_sledMotor.getConfigurator().apply(config);
-            if (status.isOK()) break;
-          }
-          if(!status.isOK()) {
-            System.out.println("Could not apply configs, error code: " + status.toString());
-          }
-          
-
-       
-        
-
-        
 
 
     }
@@ -99,23 +68,14 @@ public class Mechanism extends SubsystemBase{
     // }
     // final Supplier<Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(0);
     // <Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(0);
-    public Command runSled(){
-        // return run( () -> { toSledSpeeds( () -> Rotations.per(Minute).of(0)); } );
-        return runEnd(() -> { 
-            // m_sledMotor.setControl(m_request.withVelocity(velocity.in(Rotations.per(Minute))));
-            // m_sledMotor.setControl(m_request.withVelocity(speed.in(Rotations.per(Minute))));
-            m_sledMotor.setControl(m_request.withVelocity(-90));
-        }, 
-        () -> { m_sledMotor.setControl(m_request.withVelocity(0));});
-        // return run(()->{System.out.println("sled");}).withTimeout(0.1);
-    }
+
 
     public Command intake(){
-        Command intake = runOnce(() -> {m_intake.intake();}).until(() -> m_sled.isInSled());
-        Command feed = runSled();
+        Command intake = runOnce(() ->  m_intake.intake()).withTimeout(2).andThen(() -> m_intake.stop());
+        Command feed = m_sled.feed();
         
 
-        return Commands.race(intake,feed);
+        return Commands.race(intake, feed);
         // return intake;
         // return feed;
         
@@ -123,12 +83,9 @@ public class Mechanism extends SubsystemBase{
     }
 
     public Command outtake(){
-        Command intake = runOnce(() -> m_intake.outtake());
-        Command feed = runEnd(() -> { 
-            m_sledMotor.setControl(m_request.withVelocity(90)); //Opposite sign
-        }, 
-        () -> { m_sledMotor.setControl(m_request.withVelocity(0));});
-
+        Command intake = runOnce(() -> m_intake.outtake()).withTimeout(2).andThen(() -> m_intake.stop());
+        Command feed = m_sled.unfeed();
+        
         return Commands.race(intake, feed);
     }
 
@@ -164,7 +121,7 @@ public class Mechanism extends SubsystemBase{
 
     public Command shoot(){
         Command shoot = m_shooter.shootNote();
-        Command feed = runSled();
+        Command feed = runOnce(() -> m_sled.runSled(90)).withTimeout(2).andThen(() -> m_sled.stopSled());
 
         return Commands.parallel(shoot, feed);
     }

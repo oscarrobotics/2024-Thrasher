@@ -1,9 +1,12 @@
 package frc.robot.Subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -50,6 +53,9 @@ public class Sled extends SubsystemBase{
     BooleanPublisher T_sledBreak;
     BooleanPublisher T_inSled;
     BooleanPublisher T_shootBreak;
+
+    private final VelocityVoltage m_request = new VelocityVoltage(0);
+
 
     public Sled(){
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -156,6 +162,23 @@ public class Sled extends SubsystemBase{
         return m_pivPotentiometer.get();
     }
 
+    public void runSled(double velocity){
+        m_sledMotor.setControl(m_request.withVelocity(velocity));
+    }
+
+    public void stopSled(){
+        m_sledMotor.setControl(m_request.withVelocity(0));
+    }
+
+    public Command feed(){
+        BooleanSupplier weAreStowed = () -> isInSled();
+        return runOnce(() -> runSled(-90)).until(weAreStowed).andThen(() -> stopSled());
+    }
+
+    public Command unfeed(){
+        return runOnce(() -> runSled(90)).withTimeout(2).andThen(() -> stopSled());
+    }
+    
 
     @Override
     public void periodic(){

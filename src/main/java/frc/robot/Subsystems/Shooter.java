@@ -72,12 +72,8 @@ public class Shooter extends SubsystemBase{
     private ProfiledPIDController m_Tiltcontroller = 
         new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
 
-   
-
-    
-    
-
-    boolean isStowed;
+    boolean isShootAligned;
+    double targetAngle;
 
     // BooleanPublisher T_sledBreak;
     // BooleanPublisher T_inSled;
@@ -159,8 +155,24 @@ public class Shooter extends SubsystemBase{
         //maxtiltbackword = 0.177
     }
 
-    public void setTargetTilt(double angle){
-        m_Tiltcontroller.setGoal(angle);
+
+    //TODO: figure out what the ideal pivot angle is
+
+
+    public double getTargetTilt(){
+        return targetAngle;
+    }
+
+    public void setTargetTilt(double angle){ //Should test to find what position to shoot at
+        targetAngle = angle;
+        m_Tiltcontroller.setGoal(targetAngle);
+    }
+    
+    public boolean isShootAligned(){
+        //If our shoot is aligned, this statement is true, otherwise return false
+        isShootAligned = getShootPivotAngle() == targetAngle;
+
+        return isShootAligned;
     }
 
     public boolean get_beam(){
