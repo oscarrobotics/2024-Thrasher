@@ -1,6 +1,7 @@
 package frc.robot.Subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -174,19 +175,37 @@ public class Sled extends SubsystemBase{
         m_sledMotor.setControl(m_request.withVelocity(0));
     }
 
-    // public Command feed(){
-    //     BooleanSupplier weAreStowed = () -> isInSled();
-    //     return runOnce(() -> runSled(-90)).until(weAreStowed).andThen(() -> stopSled());
-    // }
 
-    // public Command feed(){
-    //     // BooleanSupplier weAreStowed = () -> isInSled();
-    //     return runOnce(() -> runSled(-90));
-    // }
+     public Command tilt_down(){
+        if (getSledPivotAngle()<=50) {
+            return runOnce(()->{setTargetSledPivot(getSledPivotAngle()+5);}).withTimeout(1);
+            
+        }
+        return runOnce(()->{setTargetSledPivot(55);}).withTimeout(1);
+        
+    }
 
-    // public Command unfeed(){
-    //     return runOnce(() -> runSled(90));
-    // }
+    public Command tilt_up(){
+        if (getSledPivotAngle()>=5) {
+            return runOnce(()->{setTargetSledPivot(getSledPivotAngle()-5);}).withTimeout(1);
+            
+        }
+        return runOnce(()->{setTargetSledPivot(0);}).withTimeout(1);
+        
+    }
+
+    public Command tilt_to(double angle){
+        return runOnce(()->{setTargetSledPivot(angle);}).withTimeout(1);
+    }
+
+   
+    public Command debug_runner(Supplier<Double> sledangle){
+        return runEnd(() -> {
+            setTargetSledPivot(sledangle.get());
+        }, () -> {
+            // m_sledMotor.setControl(m_request.withVelocity(0));
+        });
+    }   
     
 
     @Override

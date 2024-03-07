@@ -166,6 +166,10 @@ public class Shooter extends SubsystemBase{
         targetAngle = angle;
         m_Tiltcontroller.setGoal(targetAngle);
     }
+
+    public void tiltToTarget(){
+        m_Tiltcontroller.setGoal(targetAngle);
+    }
     
     public boolean isShootAligned(){
         //If our shoot is aligned, this statement is true, otherwise return false
@@ -189,15 +193,16 @@ public class Shooter extends SubsystemBase{
 
     
 
-    public Command shootNote(){
+    public void shootNote(){
         //if aligned, will shoot
-       return runEnd(() -> {
-            m_leftShootMotor.set(0.8); //between -1 and 1
-            m_rightShootMotor.set(0.8);
-        }, () -> {
-            m_leftShootMotor.set(0);
-            m_leftShootMotor.set(0);
-        });
+        m_leftShootMotor.set(0.8); //between -1 and 1
+        m_rightShootMotor.set(0.8);
+
+    }
+
+    public void stop(){
+        m_leftShootMotor.set(0);
+        m_rightShootMotor.set(0);
     }
     //shooter: shoot the note out
 
