@@ -203,7 +203,8 @@ public class Sled extends SubsystemBase{
         return runEnd(() -> {
             setTargetSledPivot(sledangle.get());
         }, () -> {
-            // m_sledMotor.setControl(m_request.withVelocity(0));
+            m_leftSledPivotMotor.setControl(m_request.withVelocity(1));
+            m_rightSledPivotMotor.setControl(m_request.withVelocity(1));
         });
     }   
     
