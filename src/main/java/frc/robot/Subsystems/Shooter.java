@@ -2,6 +2,9 @@ package frc.robot.Subsystems;
 
 import frc.robot.Constants;
 
+import java.util.function.Supplier;
+
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.revrobotics.CANSparkFlex;
@@ -36,6 +39,8 @@ public class Shooter extends SubsystemBase{
 
     private ProfiledPIDController m_Tiltcontroller = 
         new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
+
+    private final VelocityVoltage m_request = new VelocityVoltage(0);
 
     boolean isShootAligned;
     double targetAngle;
@@ -136,6 +141,7 @@ public class Shooter extends SubsystemBase{
 
     public void tiltToTarget(){
         m_Tiltcontroller.setGoal(targetAngle);
+        m_shootPivotMotor.setControl(m_request.withVelocity(1));
     }
     
     public boolean isShootAligned(){
@@ -156,8 +162,6 @@ public class Shooter extends SubsystemBase{
     //isAlignedWithFeed
 
     //TODO: Change to RunEnd cmd(?); Add PID
-
-
     
 
     public void shootNote(){
@@ -171,7 +175,15 @@ public class Shooter extends SubsystemBase{
         m_leftShootMotor.set(0);
         m_rightShootMotor.set(0);
     }
-    //shooter: shoot the note out
+  
+    public Command tilt_Shooter(Supplier<Double> shootangle){
+        return runEnd(() -> {
+            setTargetTilt(shootangle.get());
+        }, () -> {
+            m_shootPivotMotor.setControl(m_request.withVelocity(1));
+        });
+    }   
+    
 
     @Override
     public void periodic(){

@@ -2,6 +2,7 @@ package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Subsystems.Shooter;
 import frc.robot.Subsystems.Sled;
 
@@ -16,7 +17,7 @@ public class Shoot_note extends Command{
         this.m_shooter = m_shooter;
         this.m_sled = m_sled;
         m_timer = new Timer();
-        runtime = 2;
+        runtime = 3;
     }
 
     @Override
@@ -34,6 +35,7 @@ public class Shoot_note extends Command{
             isFirstExecute = false;
         }
         m_shooter.shootNote();
+        new WaitCommand(2);
         m_sled.runSled();
     }
 

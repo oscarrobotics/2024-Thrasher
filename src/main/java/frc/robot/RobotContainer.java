@@ -3,7 +3,9 @@ package frc.robot;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Swerve.SwerveSubsystem;
@@ -16,7 +18,7 @@ import frc.robot.Subsystems.Sled;
 
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
-    // private final CommandXboxController m_operator = new CommandXboxController(1);
+
     private final ControllerButtons m_operator = new ControllerButtons(1);
     
     public final SwerveSubsystem m_swerve = new SwerveSubsystem();
@@ -26,12 +28,12 @@ public class RobotContainer {
     public final Intake m_intake = new Intake();
      
     public final Sled m_sled = new Sled();
-    // public final Intake m_intake = new Intake();
-    // public final Sled m_sled = new Sled();
 
     public final Intake_note intake = new Intake_note(m_intake, m_sled);
     public final Outtake_note outtake = new Outtake_note(m_intake, m_sled);
     public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
+
+    // public Command shoot_note_properly = new runOnce(() -> m_sled.runSled()).waitUnti
 
     public RobotContainer(){
     m_swerve.setDefaultCommand(
@@ -67,18 +69,25 @@ public class RobotContainer {
     
     m_sled.setDefaultCommand(
     
-    
       m_sled.debug_runner(
         () -> m_operator.getLeftSlider()
       )
+
     );  
+
+    m_shooter.setDefaultCommand(
+
+      m_shooter.tilt_Shooter(() -> m_operator.getRightSlider()
+      )
+
+    );
   }
 
 
   
   public void teleopInit(){
     // m_swerve.resetOdometry();
-    // m_mechanism.m_sled.resetSledPivot();
+    m_sled.resetSledPivot();
   } 
 
 }
