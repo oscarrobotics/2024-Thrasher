@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import java.io.File;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -34,16 +36,18 @@ public class Robot extends LoggedRobot {
   
   private RobotContainer m_robotContainer;
 
+  private static final String LOG_DIRECTORY = "/home/lvuser/logs";
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
+    SetupLog();
     Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
 
     if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+      Logger.addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
       new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
     } else {
@@ -54,13 +58,22 @@ public class Robot extends LoggedRobot {
     }
     Logger.start(); //Start logging w/AdvantageScope
 
+    m_robotContainer = new RobotContainer();
+
     DataLogManager.start();
     URCL.start();
-    m_robotContainer = new RobotContainer();
+
     DriverStation.startDataLog(DataLogManager.getLog());
     Pathfinding.setPathfinder(new LocalADStarAK());
 
   }
+
+  void SetupLog(){
+    // Check if the log directory exists
+    var directory = new File(LOG_DIRECTORY);
+    if (!directory.exists()) {
+      directory.mkdir(); }
+    }
 
   @Override
   public void robotPeriodic() {
