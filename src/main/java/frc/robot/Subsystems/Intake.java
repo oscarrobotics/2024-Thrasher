@@ -14,6 +14,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -106,7 +107,14 @@ public class Intake extends SubsystemBase{
         m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
         m_rearIntakeMotor.setControl(m_request.withVelocity(40));
     }
-    
+
+    public Command intakeCommand(){
+        return runOnce(()-> intake());
+    }
+
+    public Command outtakeCommand(){
+        return runOnce(()-> outtake());
+    }    
     // final Supplier<Measure<Velocity<Angle>>> speed = () -> Rotations.per(Minute).of(30);
     // public Command intake(){
         

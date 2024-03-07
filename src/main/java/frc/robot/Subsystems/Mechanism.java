@@ -20,11 +20,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Commands.Intake_note;
+import frc.robot.Commands.Outtake_note;
 
 public class Mechanism extends SubsystemBase{
     
@@ -41,12 +45,15 @@ public class Mechanism extends SubsystemBase{
     public final  Shooter m_shooter;
     public final Sled m_sled;
 
+    public final Timer m_Timer;
+
     public Mechanism(){
     
         m_intake = new Intake();
         m_shooter = new Shooter();
         m_sled = new Sled();
         
+        m_Timer = new Timer();
         
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable NT = inst.getTable("Mechanism");
@@ -71,22 +78,14 @@ public class Mechanism extends SubsystemBase{
 
 
     public Command intake(){
-        Command intake = runOnce(() ->  m_intake.intake()).withTimeout(2).andThen(() -> m_intake.stop());
-        Command feed = m_sled.feed();
-        
+        Command intake = new Intake_note(m_intake, m_sled);
 
-        return Commands.race(intake, feed);
-        // return intake;
-        // return feed;
-        
-        // return run(()->{System.out.println("intake");}).withTimeout(0.1);
+        return intake;
     }
 
     public Command outtake(){
-        Command intake = runOnce(() -> m_intake.outtake()).withTimeout(2).andThen(() -> m_intake.stop());
-        Command feed = m_sled.unfeed();
-        
-        return Commands.race(intake, feed);
+        Command outtake = new Outtake_note(m_intake, m_sled);
+        return outtake;
     }
 
     public Command tilt_down(){
@@ -121,9 +120,9 @@ public class Mechanism extends SubsystemBase{
 
     public Command shoot(){
         Command shoot = m_shooter.shootNote();
-        Command feed = runOnce(() -> m_sled.runSled(90)).withTimeout(2).andThen(() -> m_sled.stopSled());
+        Command feed = runOnce(() -> m_sled.runSled()).withTimeout(2).andThen(() -> m_sled.stop());
 
-        return Commands.parallel(shoot, feed);
+        return Commands.race(shoot, feed);
     }
 
     public Command debug_runner(Supplier<Double> sledangle){

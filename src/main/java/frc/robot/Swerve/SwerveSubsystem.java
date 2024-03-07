@@ -9,6 +9,7 @@ import java.util.stream.Collector;
 
 import frc.robot.PhotonCameraWrapper;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -290,6 +291,7 @@ public class SwerveSubsystem extends SubsystemBase{
             SmartDashboard.putNumber(mod.moduleName +"Angle", mod.getAngle());
             
         }
+        Logger.recordOutput("Pose", getPose());
     }
 }
 

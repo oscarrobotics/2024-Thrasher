@@ -7,7 +7,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Swerve.SwerveSubsystem;
+import frc.robot.Commands.Intake_note;
+import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Mechanism;
+import frc.robot.Subsystems.Sled;
 
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
@@ -15,6 +18,8 @@ public class RobotContainer {
     private final ControllerButtons m_operator = new ControllerButtons(1);
     
     public final SwerveSubsystem m_swerve = new SwerveSubsystem();
+    // public final Intake m_intake = new Intake();
+    // public final Sled m_sled = new Sled();
 
     public final Mechanism m_mechanism = new Mechanism();
 
@@ -40,11 +45,12 @@ public class RobotContainer {
       
     );
 
+    // m_operator.arcadeWhiteLeft().onTrue(m_mechanism.intake());
     m_operator.arcadeWhiteLeft().onTrue(m_mechanism.intake());
     m_operator.arcadeBlackLeft().onTrue(m_mechanism.outtake());
     m_driverController.povUp().onTrue(m_mechanism.tilt_up());
     m_driverController.povDown().onTrue(m_mechanism.tilt_down());
-    m_operator.arcadeWhiteRight().onTrue(m_mechanism.shoot());
+    // m_operator.arcadeWhiteRight().onTrue(m_mechanism.shoot());
     // m_operator.a().onTrue() -> something to do with shoot or intake
       
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 

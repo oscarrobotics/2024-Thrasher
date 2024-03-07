@@ -162,22 +162,31 @@ public class Sled extends SubsystemBase{
         return m_pivPotentiometer.get();
     }
 
-    public void runSled(double velocity){
-        m_sledMotor.setControl(m_request.withVelocity(velocity));
+    public void runSled(){
+        m_sledMotor.setControl(m_request.withVelocity(-90));
     }
 
-    public void stopSled(){
+    public void unrunSled(){
+        m_sledMotor.setControl(m_request.withVelocity(90));
+    }
+
+    public void stop(){
         m_sledMotor.setControl(m_request.withVelocity(0));
     }
 
-    public Command feed(){
-        BooleanSupplier weAreStowed = () -> isInSled();
-        return runOnce(() -> runSled(-90)).until(weAreStowed).andThen(() -> stopSled());
-    }
+    // public Command feed(){
+    //     BooleanSupplier weAreStowed = () -> isInSled();
+    //     return runOnce(() -> runSled(-90)).until(weAreStowed).andThen(() -> stopSled());
+    // }
 
-    public Command unfeed(){
-        return runOnce(() -> runSled(90)).withTimeout(2).andThen(() -> stopSled());
-    }
+    // public Command feed(){
+    //     // BooleanSupplier weAreStowed = () -> isInSled();
+    //     return runOnce(() -> runSled(-90));
+    // }
+
+    // public Command unfeed(){
+    //     return runOnce(() -> runSled(90));
+    // }
     
 
     @Override

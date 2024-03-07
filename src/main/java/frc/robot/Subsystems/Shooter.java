@@ -55,8 +55,6 @@ public class Shooter extends SubsystemBase{
     //2 NEO Vortex Flexes for Shooter
     //Absolute Encoder
     private Timer m_Timer;
-
-    
  
 
     private DigitalInput m_shootBeamBreaker;
@@ -117,6 +115,7 @@ public class Shooter extends SubsystemBase{
 
         m_shootBeamBreaker = new DigitalInput(1);
 
+        m_Timer = new Timer();
         
     }
 
@@ -198,7 +197,7 @@ public class Shooter extends SubsystemBase{
         }, () -> {
             m_leftShootMotor.set(0);
             m_leftShootMotor.set(0);
-        }).until(() -> m_Timer.hasElapsed(1));
+        });
     }
     //shooter: shoot the note out
 
