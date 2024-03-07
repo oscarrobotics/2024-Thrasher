@@ -1,15 +1,9 @@
 package frc.robot.Commands;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command; //CommandBase is deprecated to Command
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Sled;
 
@@ -67,7 +61,7 @@ public class Outtake_note extends Command {
     @Override
     public void end(boolean interrupted){
         m_intake.stop();
-        // m_sled.goToSledPose();
+        m_sled.stop();
         m_timer.stop();
    
     }

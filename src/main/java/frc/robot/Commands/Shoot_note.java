@@ -10,9 +10,11 @@ public class Shoot_note extends Command{
     private Sled m_sled;
     private Timer m_timer;
     private double runtime;
+
     public Shoot_note(Shooter m_shooter, Sled m_sled){
         this.m_shooter = m_shooter;
         this.m_sled = m_sled;
+        m_timer = new Timer();
     }
 
     @Override
