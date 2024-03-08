@@ -35,18 +35,5 @@ public class Shoot_note extends Command{
             isFirstExecute = false;
         }
         m_shooter.shootNote();
-        new WaitCommand(2);
-        m_sled.runSled();
-    }
-
-    @Override
-    public boolean isFinished(){
-        return m_timer.hasElapsed(runtime);
-    }
-
-    @Override
-    public void end(boolean interrupted){
-        m_shooter.stop();
-        m_sled.stop();
     }
 }

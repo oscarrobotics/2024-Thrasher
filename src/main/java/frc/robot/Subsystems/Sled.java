@@ -1,6 +1,7 @@
 package frc.robot.Subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusCode;
@@ -36,7 +37,7 @@ public class Sled extends SubsystemBase{
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor;
 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(4,3);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(40, 30);
 
     private ProfiledPIDController m_Sledcontroller = 
         new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
@@ -53,7 +54,7 @@ public class Sled extends SubsystemBase{
     DoublePublisher T_sledPivot;
     BooleanPublisher T_sledBreak;
     BooleanPublisher T_inSled;
-    BooleanPublisher T_shootBreak;
+    
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
 
@@ -63,7 +64,7 @@ public class Sled extends SubsystemBase{
         NetworkTable NT = inst.getTable("Sled");
         T_sledPivot = NT.getDoubleTopic("sledPivot").publish();
         T_sledBreak = NT.getBooleanTopic("SledBreak").publish();
-        T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
+       
         T_inSled = NT.getBooleanTopic("inSled").publish();
 
 
@@ -117,6 +118,7 @@ public class Sled extends SubsystemBase{
           }
 
         m_Sledcontroller.reset(getSledPivotAngle());
+        m_Sledcontroller.setGoal(getSledPivotAngle());
 
         m_sledBeamBreaker = new DigitalInput(0);
 
@@ -198,15 +200,14 @@ public class Sled extends SubsystemBase{
         return runOnce(()->{setTargetSledPivot(angle);}).withTimeout(1);
     }
 
-   
-    public Command debug_runner(Supplier<Double> sledangle){
-        return runEnd(() -> {
-            setTargetSledPivot(sledangle.get());
-        }, () -> {
-            m_leftSledPivotMotor.setControl(m_request.withVelocity(1));
-            m_rightSledPivotMotor.setControl(m_request.withVelocity(1));
-        });
-    }   
+
+    public Command 
+    rotateSled(Supplier<Double> sledangle){
+        return run(
+        () -> {setTargetSledPivot(sledangle.get());}
+        );
+        
+    }
     
 
     @Override

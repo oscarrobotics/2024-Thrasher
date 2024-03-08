@@ -4,6 +4,7 @@ import frc.robot.Constants;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -13,12 +14,15 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase{
@@ -35,26 +39,35 @@ public class Shooter extends SubsystemBase{
 
     private DutyCycleEncoder m_absoluteEncoder;
 
-    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(1,1);
+    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(20,12);
 
     private ProfiledPIDController m_Tiltcontroller = 
-        new ProfiledPIDController(0, 0, 0, m_Tiltconstraints, 0.02); 
+        new ProfiledPIDController(0.6, 0, 0, m_Tiltconstraints, 0.02); 
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
+
+    private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
 
     boolean isShootAligned;
     double targetAngle;
 
-    // BooleanPublisher T_sledBreak;
-    // BooleanPublisher T_inSled;
-    // BooleanPublisher T_shootBreak;
+   DoublePublisher T_shootPivotControllerOutput;
 
+    DoublePublisher T_shootPivot;
+
+    BooleanPublisher T_shootBreak;
 
     
 
     public Shooter(){
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable NT = inst.getTable("Shooter");
+      
+        T_shootPivot = NT.getDoubleTopic("shootPivot").publish();
+   
+        T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
+       
+        T_shootPivotControllerOutput = NT.getDoubleTopic("pivOutput").publish();
         
         
         m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
@@ -122,8 +135,8 @@ public class Shooter extends SubsystemBase{
         return m_absoluteEncoder.get();
 
         //straight valure = 0.487
-        //maxtiltforward = 0.873
-        //maxtiltbackword = 0.177
+        //maxtiltforward = 0.744
+        //maxtiltbackword = 0.251
     }
 
 
@@ -167,7 +180,7 @@ public class Shooter extends SubsystemBase{
     public void shootNote(){
         //if aligned, will shoot
         m_leftShootMotor.set(0.8); //between -1 and 1
-        m_rightShootMotor.set(0.8);
+        m_rightShootMotor.set(-0.8);
 
     }
 
@@ -177,10 +190,8 @@ public class Shooter extends SubsystemBase{
     }
   
     public Command tilt_Shooter(Supplier<Double> shootangle){
-        return runEnd(() -> {
+        return run(() -> {
             setTargetTilt(shootangle.get());
-        }, () -> {
-            m_shootPivotMotor.setControl(m_request.withVelocity(1));
         });
     }   
     
@@ -190,7 +201,13 @@ public class Shooter extends SubsystemBase{
 
         //really volatile 
 
-        // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
+        double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
+        T_shootPivotControllerOutput.set(shootPivotControllerOutput);
+        m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
+
+        T_shootBreak.set(get_beam());
+        T_shootPivot.set(getShootPivotAngle());
+        
    
     }
 }
