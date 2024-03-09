@@ -52,8 +52,6 @@ public class SwerveSubsystem extends SubsystemBase{
     public Matrix<N3,N1> stateStdDevs = VecBuilder.fill(0.1,0.1,0.1); //values uncertain
     public Matrix<N3,N1> visionMeasurementStdDevs = VecBuilder.fill(0.9,0.9,0.9); //values uncertain
 
-    public ChassisSpeeds m_chassis;
-    public double vx, vy, omega;
     // public PhotonCameraWrapper pcw;
 
     static SwerveSubsystem instance;
@@ -70,7 +68,6 @@ public class SwerveSubsystem extends SubsystemBase{
 
         
         m_field = new Field2d();
-        m_chassis = new ChassisSpeeds(vx, vy, omega);
         m_kinematics = new SwerveDriveKinematics(
             //garentees the order of positional offsets is the order of m_modulesu 
             Arrays.stream(m_modules).map(mod -> mod.positionalOffset).toArray(Translation2d[]::new)
@@ -115,18 +112,12 @@ public class SwerveSubsystem extends SubsystemBase{
             SmartDashboard.putData("Field", m_field);
     }
 
-    public ChassisSpeeds setNewChassis(double vx, double vy, double omega){
-        this.vx = vx;
-        this.vy = vy;
-        this.omega = omega;
-        return m_chassis;
-    }
 
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
  
         ChassisSpeeds targetChassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
-            : setNewChassis(vxMeters, vyMeters, omegaRadians);
+            : new ChassisSpeeds(vxMeters, vyMeters, omegaRadians);
 
         setChassisSpeeds(targetChassisSpeeds, isOpenLoop, false);
     }
@@ -134,7 +125,7 @@ public class SwerveSubsystem extends SubsystemBase{
  
         ChassisSpeeds targetChassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
-            : setNewChassis(vxMeters, vyMeters, omegaRadians);
+            : new ChassisSpeeds(vxMeters, vyMeters, omegaRadians);
 
         setChassisSpeeds(targetChassisSpeeds, isOpenLoop, false, turnCenter);
     }
@@ -156,9 +147,9 @@ public class SwerveSubsystem extends SubsystemBase{
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds){
         setModuleStates(m_kinematics.toSwerveModuleStates(chassisSpeeds), true, false);
     }
-
+    
     public SwerveModuleState[] getModuleStates() {
-		SwerveModuleState[] states = new SwerveModuleState[4];
+	SwerveModuleState[] states = new SwerveModuleState[4];
 		for (SwerveModule mod : m_modules) {
 			states[mod.moduleNumber] = mod.getState();
 		}
