@@ -46,12 +46,14 @@ public class SwerveSubsystem extends SubsystemBase{
 
     private final Pigeon2 m_gyro = new Pigeon2(0);
 
-    private SwerveDriveKinematics m_kinematics;
+    public SwerveDriveKinematics m_kinematics;
 
     private Field2d m_field;
     public Matrix<N3,N1> stateStdDevs = VecBuilder.fill(0.1,0.1,0.1); //values uncertain
     public Matrix<N3,N1> visionMeasurementStdDevs = VecBuilder.fill(0.9,0.9,0.9); //values uncertain
 
+    public ChassisSpeeds m_chassis;
+    public double vx, vy, omega;
     // public PhotonCameraWrapper pcw;
 
     static SwerveSubsystem instance;
@@ -68,6 +70,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
         
         m_field = new Field2d();
+        m_chassis = new ChassisSpeeds(vx, vy, omega);
         m_kinematics = new SwerveDriveKinematics(
             //garentees the order of positional offsets is the order of m_modulesu 
             Arrays.stream(m_modules).map(mod -> mod.positionalOffset).toArray(Translation2d[]::new)
@@ -112,12 +115,18 @@ public class SwerveSubsystem extends SubsystemBase{
             SmartDashboard.putData("Field", m_field);
     }
 
+    public ChassisSpeeds setNewChassis(double vx, double vy, double omega){
+        this.vx = vx;
+        this.vy = vy;
+        this.omega = omega;
+        return m_chassis;
+    }
 
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
  
         ChassisSpeeds targetChassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
-            : new ChassisSpeeds(vxMeters, vyMeters, omegaRadians);
+            : setNewChassis(vxMeters, vyMeters, omegaRadians);
 
         setChassisSpeeds(targetChassisSpeeds, isOpenLoop, false);
     }
@@ -125,7 +134,7 @@ public class SwerveSubsystem extends SubsystemBase{
  
         ChassisSpeeds targetChassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
-            : new ChassisSpeeds(vxMeters, vyMeters, omegaRadians);
+            : setNewChassis(vxMeters, vyMeters, omegaRadians);
 
         setChassisSpeeds(targetChassisSpeeds, isOpenLoop, false, turnCenter);
     }
@@ -176,6 +185,15 @@ public class SwerveSubsystem extends SubsystemBase{
 
         for (SwerveModule mod : m_modules){
             mod.setDesiredState(desiredStates[mod.moduleNumber], isOpenLoop, steerInPlace);
+            SmartDashboard.putNumber(mod.moduleName+"requested Angle", desiredStates[mod.moduleNumber].angle.getRadians());
+        }
+    }
+
+        public void setModuleStates(SwerveModuleState[] desiredStates){
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, 14);
+
+        for (SwerveModule mod : m_modules){
+            mod.setDesiredState(desiredStates[mod.moduleNumber], false, false);
             SmartDashboard.putNumber(mod.moduleName+"requested Angle", desiredStates[mod.moduleNumber].angle.getRadians());
         }
     }
@@ -248,7 +266,7 @@ public class SwerveSubsystem extends SubsystemBase{
         m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), 
         getModulePositions(), 
         new Pose2d(new Translation2d(0,0), 
-        Rotation2d.fromDegrees(150)));
+        Rotation2d.fromDegrees(180)));
 
     }
 
