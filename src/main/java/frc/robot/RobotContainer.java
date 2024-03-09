@@ -111,7 +111,7 @@ public class RobotContainer {
     m_sled.setDefaultCommand(
     
       m_sled.rotateSled(
-        () -> (m_operator.getLeftSlider() + 1) / 2 * 50
+        () -> (m_operator.getLeftSlider() + 1) / 2 * 37
       )
 
     );  
