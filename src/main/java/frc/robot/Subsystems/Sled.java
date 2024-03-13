@@ -38,7 +38,7 @@ public class Sled extends SubsystemBase{
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor;
 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(40, 30);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(60, 120);
 
     private ProfiledPIDController m_Sledcontroller = 
         new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
