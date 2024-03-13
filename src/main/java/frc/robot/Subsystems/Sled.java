@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -37,7 +38,7 @@ public class Sled extends SubsystemBase{
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor;
 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(40, 30);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(60, 120);
 
     private ProfiledPIDController m_Sledcontroller = 
         new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
@@ -92,7 +93,9 @@ public class Sled extends SubsystemBase{
           }
         m_leftSledPivotMotor.setInverted(true);
         m_rightSledPivotMotor.setControl(new Follower(Constants.kLeftSledPivotId ,true));
-        m_leftSledPivotMotor.setControl(new Follower(m_rightSledPivotMotor.getDeviceID(), true));
+        // m_leftSledPivotMotor.setControl(new Follower(m_rightSledPivotMotor.getDeviceID(), true));
+        m_leftSledPivotMotor.setNeutralMode(NeutralModeValue.Brake);
+        m_rightSledPivotMotor.setNeutralMode(NeutralModeValue.Brake);
         
         m_sledMotor = new TalonFX(Constants.kSledIntakeId);
 
@@ -107,6 +110,7 @@ public class Sled extends SubsystemBase{
 
         config.Voltage.PeakForwardVoltage = 8;
         config.Voltage.PeakReverseVoltage = -8; 
+        
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
@@ -116,6 +120,7 @@ public class Sled extends SubsystemBase{
           if(!status.isOK()) {
             System.out.println("Could not apply configs, error code: " + status.toString());
           }
+        
 
         m_Sledcontroller.reset(getSledPivotAngle());
         m_Sledcontroller.setGoal(getSledPivotAngle());
@@ -166,11 +171,11 @@ public class Sled extends SubsystemBase{
     }
 
     public void runSled(){
-        m_sledMotor.setControl(m_request.withVelocity(-90));
+        m_sledMotor.setControl(m_request.withVelocity(-100));
     }
 
     public void unrunSled(){
-        m_sledMotor.setControl(m_request.withVelocity(90));
+        m_sledMotor.setControl(m_request.withVelocity(100));
     }
 
     public void stop(){

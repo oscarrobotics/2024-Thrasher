@@ -203,7 +203,7 @@ public class Shooter extends SubsystemBase{
 
         double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
         T_shootPivotControllerOutput.set(shootPivotControllerOutput);
-        m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
+        // m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
 
         T_shootBreak.set(get_beam());
         T_shootPivot.set(getShootPivotAngle());
