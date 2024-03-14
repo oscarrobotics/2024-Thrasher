@@ -66,13 +66,13 @@ public class RobotContainer {
     //     .finallyDo(() -> m_sled.stop());
    ShootCmd = new SequentialCommandGroup(
       
-       new RunCommand( () -> m_shooter.shootNote(), m_shooter).withTimeout(0.1),
+       new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
         new WaitCommand(0.5),
-        new RunCommand( () ->m_sled.runSled(), m_sled).withTimeout(0.1),
+        new InstantCommand( () ->m_sled.runSled(), m_sled),
         new WaitCommand(1),
         new ParallelCommandGroup(
-        new RunCommand(() -> m_shooter.stop(), m_shooter).withTimeout(0.05),
-        new RunCommand(() -> m_sled.stop(), m_sled).withTimeout(0.05))
+        new InstantCommand(() -> m_shooter.stop(), m_shooter),
+        new InstantCommand(() -> m_sled.stop(), m_sled))
    );
 
     m_swerve.setDefaultCommand(

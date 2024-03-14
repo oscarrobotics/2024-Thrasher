@@ -25,6 +25,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// import edu.wpi.first.wpilibj.Notifier;
+
+
 public class Shooter extends SubsystemBase{
     //2 NEO Vortex Flexes for Shooter
     //Absolute Encoder
@@ -32,6 +35,10 @@ public class Shooter extends SubsystemBase{
  
 
     private DigitalInput m_shootBeamBreaker;
+    // private final Notifier m_note_shot_timings;
+    // private boolean m_lastbeam = true;
+
+
 
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
     private SparkPIDController m_leftPID, m_rightPID;
@@ -99,10 +106,24 @@ public class Shooter extends SubsystemBase{
         
 
         m_shootBeamBreaker = new DigitalInput(1);
+        // m_note_shot_timings = new Notifier(this::report_change);
 
         m_Timer = new Timer();
         
     }
+    // private void report_change(){
+    //     if( m_lastbeam != m_shootBeamBreaker.get()){
+    //         System.out.println(Timer.getFPGATimestamp());
+    //         m_lastbeam = ! m_lastbeam;
+    //     }
+    // }
+
+    // public void start_detector(){
+    //     m_note_shot_timings.startPeriodic(0);//run as fast as posible may be a mistatke 
+    // }
+    // public void stop_detector(){
+    //     m_note_shot_timings.stop();
+    // }
 
     //debugging --> encoder output, control the motor, PID values
 
@@ -139,7 +160,7 @@ public class Shooter extends SubsystemBase{
         //maxtiltbackword = 0.251
     }
 
-
+    
     //TODO: figure out what the ideal pivot angle is
 
 
@@ -194,6 +215,7 @@ public class Shooter extends SubsystemBase{
             setTargetTilt(shootangle.get());
         });
     }   
+
     
 
     @Override
