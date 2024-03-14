@@ -83,6 +83,7 @@ public class RobotContainer {
         () -> true,
         () -> true
       )
+     
     );
     m_driverController.a().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
     m_driverController.b().whileTrue(
@@ -110,7 +111,7 @@ public class RobotContainer {
     m_sled.setDefaultCommand(
     
       m_sled.rotateSled(
-        () -> (m_operator.getLeftSlider() + 1) / 2 * 37
+        () -> (-m_operator.getLeftSlider() + 1) / 2 * 50
       )
 
     );  
@@ -169,15 +170,16 @@ public class RobotContainer {
   public Command getAutoCommand2(){
     return new SequentialCommandGroup(
       // ShootCmd,
+      new WaitCommand(0.5),
+      new RunCommand(() -> m_swerve.drive(1, 0, 0, true, true), m_swerve),
       new WaitCommand(2),
-      new InstantCommand(() -> m_swerve.drive(1, 0, 0, true, true), m_swerve),
-      new InstantCommand(() -> m_swerve.stop())
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
   }
   
   public void teleopInit(){
     // m_swerve.resetOdometry();
-    // m_mechanism.m_sled.resetSledPivot();
+    // m_sled.resetSledPivot();
   } 
 
 }
