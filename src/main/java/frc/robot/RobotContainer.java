@@ -171,7 +171,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       // ShootCmd,
       new WaitCommand(0.5),
-      new RunCommand(() -> m_swerve.drive(1, 0, 0, true, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(0.6, 0, 0, true, true), m_swerve),
       new WaitCommand(2),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
