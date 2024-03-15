@@ -219,6 +219,10 @@ public class SwerveModule {
         return m_integratedSteerEncoder.getVelocity();
     }
 
+    public double getMotorAppliedOutput(){
+        return m_driveMotor.getAppliedOutput();
+    }
+
     //Get Distance Command
 
     // /* (Given this is an analog input), you can divide the encoder's voltage reading by 
