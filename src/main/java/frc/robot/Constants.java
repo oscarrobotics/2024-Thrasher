@@ -74,29 +74,27 @@ public class Constants {
 
  public class VisionK {
   public static final Transform3d kFrontTagCamLocation = new Transform3d(
-      0.5, 0.5, 0.25, new Rotation3d());
+      Units.inchesToMeters(22.5/2), -Units.inchesToMeters(22.5/2), Units.inchesToMeters(7.25), 
+      new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians( 20),Units.degreesToRadians(-10 )));
 
   public static final Transform3d kRearTagCamLocation = new Transform3d(
-      -0.5, 0.5, 0.25, new Rotation3d(0, 0, Units.degreesToRadians(180)));
+      -Units.inchesToMeters(22.5/2), Units.inchesToMeters(22.5/2), Units.inchesToMeters(7.25), 
+      new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians( 15),Units.degreesToRadians(170 )));
 
-  public static final Transform3d kRightTagCamLocation = new Transform3d(
-      0.5, 0.5, 0.25, new Rotation3d());
+//   public static final Transform3d kRightTagCamLocation = new Transform3d(
+//       0.5, 0.5, 0.25, new Rotation3d());
 
-  public static final Transform3d kLeftTagCamLocation = new Transform3d(
-      -0.5, 0.5, 0.25, new Rotation3d(0, 0, Units.degreesToRadians(180)));
+//   public static final Transform3d kLeftTagCamLocation = new Transform3d(
+//       -0.5, 0.5, 0.25, new Rotation3d(0, 0, Units.degreesToRadians(180)));
 
 
   public static final Transform3d kFrontObjCamLocation = new Transform3d(
-      0.5, 0.5, 0.25, new Rotation3d());
+      Units.inchesToMeters(22.5/2), Units.inchesToMeters(22.5/2), Units.inchesToMeters(8.25), new Rotation3d());
 
   public static final Transform3d kRearObjCamLocation = new Transform3d(
-      -0.5, 0.5, 0.25, new Rotation3d(0, 0, Units.degreesToRadians(180)));
+      -Units.inchesToMeters(22.5/2), -Units.inchesToMeters(22.5/2), Units.inchesToMeters(11.5), new Rotation3d(0, 0, Units.degreesToRadians(180)));
 
-  public static final Transform3d kRightObjCamLocation = new Transform3d(
-      0.5, 0.5, 0.25, new Rotation3d());
-
-  public static final Transform3d kLeftObjCamLocation = new Transform3d(
-      -0.5, 0.5, 0.25, new Rotation3d(0, 0, Units.degreesToRadians(180)));
+ 
 }
 
 public class FieldK {
