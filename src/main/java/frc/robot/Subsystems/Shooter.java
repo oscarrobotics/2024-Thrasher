@@ -7,10 +7,11 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -25,7 +26,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// import edu.wpi.first.wpilibj.Notifier;
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.wpilibj.Notifier;
 
 
 public class Shooter extends SubsystemBase{
@@ -38,6 +42,8 @@ public class Shooter extends SubsystemBase{
     // private final Notifier m_note_shot_timings;
     // private boolean m_lastbeam = true;
 
+    private final Notifier m_faster_tilt_pid;
+
 
 
     private CANSparkFlex m_leftShootMotor, m_rightShootMotor;
@@ -46,10 +52,11 @@ public class Shooter extends SubsystemBase{
 
     private DutyCycleEncoder m_absoluteEncoder;
 
-    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(20,12);
+    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(1,20);
 
     private ProfiledPIDController m_Tiltcontroller = 
-        new ProfiledPIDController(0.6, 0, 0, m_Tiltconstraints, 0.02); 
+        new ProfiledPIDController(1.4, 0.00, 0.08, m_Tiltconstraints, 0.01);
+         
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
 
@@ -93,12 +100,14 @@ public class Shooter extends SubsystemBase{
         m_rightPID.setD(0.000);
         m_rightPID.setFF(0.002); //12V / 6000 RPM
 
+        
         //sled pivot
         
 
 
         // m_sledPivotMotor = new TalonFX(1);
         m_shootPivotMotor = new TalonFX(Constants.kShootPivotId, "rio");
+        
 
         m_absoluteEncoder = new DutyCycleEncoder(2);
         // m_absoluteEncoder.setDistancePerRotation(positionDeg);
@@ -108,7 +117,17 @@ public class Shooter extends SubsystemBase{
         m_shootBeamBreaker = new DigitalInput(1);
         // m_note_shot_timings = new Notifier(this::report_change);
 
+        m_faster_tilt_pid = new Notifier(this::pidup);
+        
+
         m_Timer = new Timer();
+        m_Tiltcontroller.setTolerance(0.0001);
+        
+        m_Tiltcontroller.reset(getShootPivotAngle());
+        m_Tiltcontroller.setGoal(0.483);
+
+        m_faster_tilt_pid.startPeriodic(0.01);
+        
         
     }
     // private void report_change(){
@@ -184,6 +203,10 @@ public class Shooter extends SubsystemBase{
 
         return isShootAligned;
     }
+    public void tilt_strait()
+    {
+        m_Tiltcontroller.setGoal(0.487);
+    }
 
     public boolean get_beam(){
         return m_shootBeamBreaker.get();
@@ -200,6 +223,8 @@ public class Shooter extends SubsystemBase{
 
     public void shootNote(){
         //if aligned, will shoot
+        m_Tiltcontroller.setGoal(0.487);
+        
         m_leftShootMotor.set(0.8); //between -1 and 1
         m_rightShootMotor.set(-0.8);
 
@@ -209,6 +234,11 @@ public class Shooter extends SubsystemBase{
         m_leftShootMotor.set(0);
         m_rightShootMotor.set(0);
     }
+
+    public void set_shoot_speed(double speed){
+        m_leftPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
+        m_rightPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
+    }
   
     public Command tilt_Shooter(Supplier<Double> shootangle){
         return run(() -> {
@@ -216,6 +246,10 @@ public class Shooter extends SubsystemBase{
         });
     }   
 
+    private void pidup(){
+
+        m_shootPivotMotor.setControl(motorRequest.withOutput(m_Tiltcontroller.calculate(getShootPivotAngle())));
+    }
     
 
     @Override
@@ -223,12 +257,21 @@ public class Shooter extends SubsystemBase{
 
         //really volatile 
 
-        double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
-        T_shootPivotControllerOutput.set(shootPivotControllerOutput);
+        // double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
+        // T_shootPivotControllerOutput.set(shootPivotControllerOutput);
         // m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
 
         T_shootBreak.set(get_beam());
         T_shootPivot.set(getShootPivotAngle());
+
+        Logger.recordOutput("Left Speed", m_leftShootMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Right Speed", m_rightShootMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Left Shooter Setting", m_leftShootMotor.get());
+        Logger.recordOutput("Right Shooter Setting", m_rightShootMotor.get());
+        Logger.recordOutput("Pivot Angle", getShootPivotAngle());
+        Logger.recordOutput("Pivot Error", m_Tiltcontroller.getPositionError());
+      
+
         
    
     }

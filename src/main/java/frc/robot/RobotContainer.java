@@ -164,18 +164,18 @@ public class RobotContainer {
                 new InstantCommand(() -> m_swerve.stop(), m_swerve));
     // return new SequentialCommandGroup();
 
-  }
+  // }
 
-  //TODO: Fix shoot cmd aspect of auto, otherwise it works
-  public Command getAutoCommand2(){
-    return new SequentialCommandGroup(
-      // ShootCmd,
-      new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(0.6, 0, 0, true, true), m_swerve),
-      new WaitCommand(2),
-      new InstantCommand(() -> m_swerve.stop(), m_swerve)
-    );
-  }
+  // //TODO: Fix shoot cmd aspect of auto, otherwise it works
+  // public Command getAutoCommand2(){
+  //   return new SequentialCommandGroup(
+  //     // ShootCmd,
+  //     new WaitCommand(0.5),
+  //     new InstantCommand(() -> m_swerve.drive(0.6, 0, 0, true, true), m_swerve),
+  //     new WaitCommand(2),
+  //     new InstantCommand(() -> m_swerve.stop(), m_swerve)
+  //   );
+  // }
   
   public void teleopInit(){
     // m_swerve.resetOdometry();
