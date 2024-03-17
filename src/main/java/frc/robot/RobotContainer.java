@@ -32,6 +32,9 @@ import frc.robot.Constants.AutoK;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Shooter;
 import frc.robot.Subsystems.Sled;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
+
 
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(0);
@@ -45,6 +48,10 @@ public class RobotContainer {
     public final Intake m_intake = new Intake();
      
     public final Sled m_sled = new Sled();
+    
+
+    public final Vision m_vision = new Vision(m_swerve::addVisionMeasurement);
+    public final Notifier m_visionloop = new Notifier(m_vision::run);
     // public final Intake m_intake = new Intake();
     // public final Sled m_sled = new Sled();
     // SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -57,6 +64,8 @@ public class RobotContainer {
     Command ShootCmd;
 
     public RobotContainer(){
+      DriverStation.silenceJoystickConnectionWarning(true);
+      m_visionloop.startPeriodic(0.04);
     // ShootCmd = new RunCommand(
     //     () -> m_shooter.shootNote()).withTimeout(0.1)
     //     .andThen(new WaitCommand(1))
@@ -96,6 +105,8 @@ public class RobotContainer {
       )
       
     );
+    m_driverController.leftBumper().onTrue(intake);
+    m_driverController.rightBumper().onTrue(ShootCmd);
 
     m_operator.arcadeWhiteLeft().onTrue(intake);
     m_operator.arcadeBlackLeft().onTrue(outtake);

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -7,6 +8,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,38 +25,27 @@ public class Vision {
 
     private final Consumer<VisionMeasurement> m_visionMeasurementConsumer;
 
-    private final PhotonCamera m_frontTagCam = new PhotonCamera("frontTag");
+    private final PhotonCamera m_frontTagCam = new PhotonCamera("FrontTag");
     private final PhotonPoseEstimator m_frontTagEst = new PhotonPoseEstimator(
         kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
         m_frontTagCam, kFrontTagCamLocation);
 
 
-    private final PhotonCamera m_rearTagCam = new PhotonCamera("rearTag");
+    private final PhotonCamera m_rearTagCam = new PhotonCamera("RearTag");
     private final PhotonPoseEstimator m_rearTagEst = new PhotonPoseEstimator(
         kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
         m_rearTagCam, kRearTagCamLocation);
 
             
-    private final PhotonCamera m_frontObjCam = new PhotonCamera("frontObjCam");
+    private final PhotonCamera m_frontObjCam = new PhotonCamera("FrontColor");
 
-    private final PhotonCamera m_rearObjCam = new PhotonCamera("rearObjCam");
-
-    
-    private final PhotonCamera m_rightTagCam = new PhotonCamera("rightTag");
-    private final PhotonPoseEstimator m_rightTagEst = new PhotonPoseEstimator(
-        kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
-        m_rightTagCam, kRightTagCamLocation);
+    private final PhotonCamera m_rearObjCam = new PhotonCamera("RearColor");
 
 
-    private final PhotonCamera m_leftTagCam = new PhotonCamera("leftTag");
-    private final PhotonPoseEstimator m_leftTagEst = new PhotonPoseEstimator(
-        kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        m_rearTagCam, kLeftTagCamLocation);
 
             
-    private final PhotonCamera m_rightObjCam = new PhotonCamera("rightObjCam");
 
-    private final PhotonCamera m_leftObjCam = new PhotonCamera("leftObjCam");
+
 
 
 
@@ -81,7 +72,8 @@ public class Vision {
         var objCamResult = m_frontObjCam.getLatestResult();
         if (objCamResult.hasTargets()) {
             var noteYaw = objCamResult.getBestTarget().getYaw();
-            SmartDashboard.putNumber("bestNoteYaw", noteYaw); // TODO: do something more clever with this
+            Logger.recordOutput("bestNoteYaw", noteYaw); // TODO: do something more clever with this
         }
+    
     }
 }

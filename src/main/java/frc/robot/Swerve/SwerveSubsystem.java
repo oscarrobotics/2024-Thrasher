@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import java.util.stream.Collector;
 
 import frc.robot.PhotonCameraWrapper;
+import frc.robot.Vision.VisionMeasurement;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -275,6 +276,7 @@ public class SwerveSubsystem extends SubsystemBase{
     public void updateOdometry(){
         m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
         
+       
         // Optional<EstimatedRobotPose> result = 
         // pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
 
@@ -284,6 +286,13 @@ public class SwerveSubsystem extends SubsystemBase{
         //             camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
         // }
         
+    }
+    public void addVisionMeasurement(VisionMeasurement measurement){
+        m_poseEstimator.addVisionMeasurement(
+			measurement.measure(), measurement.latency(), measurement.stdDevs());
+        
+
+
     }
 
     public void stop() {
@@ -300,6 +309,9 @@ public class SwerveSubsystem extends SubsystemBase{
     @Override
     public void periodic(){
         updateOdometry();
+        Logger.recordOutput("Pose", m_poseEstimator.getEstimatedPosition());
+
+        
         for(SwerveModule mod : m_modules){
             // SmartDashboard.putNumber(mod.moduleName + "Desired Angle", mod.getAbsoluteAngle().getRadians());
             // SmartDashboard.putNumber(mod.moduleName +"Desired Velocity", mod.getDriveVelocity());
@@ -314,6 +326,7 @@ public class SwerveSubsystem extends SubsystemBase{
             Logger.recordOutput("Motor Speed Percentage "+mod.moduleName, mod.getDriveVelocity()/Constants.kPhysicalMaxSpeedMetersPerSecond);
             Logger.recordOutput("Motor Applied Power "+mod.moduleName, mod.getMotorAppliedOutput());
         }
+        
         
         
         
