@@ -10,6 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
@@ -70,6 +71,8 @@ public class Shooter extends SubsystemBase{
     DoublePublisher T_shootPivot;
 
     BooleanPublisher T_shootBreak;
+
+    double leftTargetSpd, rightTargetSpd, leftError, rightError;
 
     
 
@@ -238,6 +241,9 @@ public class Shooter extends SubsystemBase{
     public void set_shoot_speed(double speed){
         m_leftPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
         m_rightPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
+
+        leftTargetSpd = speed;
+        rightTargetSpd = speed;
     }
   
     public Command tilt_Shooter(Supplier<Double> shootangle){
@@ -250,7 +256,6 @@ public class Shooter extends SubsystemBase{
 
         m_shootPivotMotor.setControl(motorRequest.withOutput(m_Tiltcontroller.calculate(getShootPivotAngle())));
     }
-    
 
     @Override
     public void periodic(){
@@ -270,6 +275,8 @@ public class Shooter extends SubsystemBase{
         Logger.recordOutput("Right Shooter Setting", m_rightShootMotor.get());
         Logger.recordOutput("Pivot Angle", getShootPivotAngle());
         Logger.recordOutput("Pivot Error", m_Tiltcontroller.getPositionError());
+        Logger.recordOutput("Left Velocity Error", leftTargetSpd - m_leftShootMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Right Velocity Error",  rightTargetSpd - m_rightShootMotor.getEncoder().getVelocity());
       
 
         
