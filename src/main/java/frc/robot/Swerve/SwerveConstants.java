@@ -2,6 +2,7 @@ package frc.robot.Swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 
 public class SwerveConstants {
 
@@ -15,7 +16,7 @@ public class SwerveConstants {
         public static final int driveCANId = 1;
         public static final int steerCANId = 2;
         public static final Rotation2d angularOffset = Rotation2d.fromDegrees(180.0);
-        public static final Translation2d positionalOffset = new Translation2d(0.5969/2,-0.5969/2);
+        public static final Translation2d positionalOffset = new Translation2d(Units.inchesToMeters(22.5/2),Units.inchesToMeters(-22.5/2));
         public static final boolean isReversed = false;
         public static final SwerveModuleConstants constants = new SwerveModuleConstants(moduleName, driveCANId, steerCANId, angularOffset, positionalOffset, isReversed);
     }
@@ -25,7 +26,7 @@ public class SwerveConstants {
         public static final int driveCANId = 3;
         public static final int steerCANId = 4;
         public static final Rotation2d angularOffset = Rotation2d.fromDegrees(90);
-        public static final Translation2d positionalOffset = new Translation2d(0.5969/2,0.5969/2);
+        public static final Translation2d positionalOffset = new Translation2d(Units.inchesToMeters(22.5/2),Units.inchesToMeters(22.5/2));
         public static final boolean isReversed = false;
         public static final SwerveModuleConstants constants = new SwerveModuleConstants(moduleName, driveCANId, steerCANId, angularOffset, positionalOffset, isReversed);
     }
@@ -35,7 +36,7 @@ public class SwerveConstants {
         public static final int driveCANId = 5;
         public static final int steerCANId = 6;
         public static final Rotation2d angularOffset = Rotation2d.fromDegrees(270.0);
-        public static final Translation2d positionalOffset = new Translation2d(-0.5969/2,-0.5969/2);
+        public static final Translation2d positionalOffset = new Translation2d(Units.inchesToMeters(-22.5/2),Units.inchesToMeters(-22.5/2));
         public static final boolean isReversed = false;
         public static final SwerveModuleConstants constants = new SwerveModuleConstants(moduleName, driveCANId, steerCANId, angularOffset, positionalOffset, isReversed);
     }
@@ -46,7 +47,7 @@ public class SwerveConstants {
         public static final int steerCANId = 8;
         public static final Rotation2d angularOffset = Rotation2d.fromDegrees(0.0);
         
-        public static final Translation2d positionalOffset = new Translation2d(-0.5969/2,0.5969/2);
+        public static final Translation2d positionalOffset = new Translation2d(Units.inchesToMeters(-22.5/2),Units.inchesToMeters(22.5/2));
         public static final boolean isReversed = false;
         public static final SwerveModuleConstants constants = new SwerveModuleConstants(moduleName, driveCANId, steerCANId, angularOffset, positionalOffset, isReversed);
     }
