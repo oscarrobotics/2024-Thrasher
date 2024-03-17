@@ -93,6 +93,7 @@ public class SwerveModule {
         m_steerPIDController.setPositionPIDWrappingMinInput(0);
         m_steerPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
 
+        m_drivePIDController.setOutputRange(-1,1);
         m_drivePIDController.setP(0.000);
         m_drivePIDController.setI(0.000);
         m_drivePIDController.setD(0.000);
@@ -221,6 +222,10 @@ public class SwerveModule {
 
     public double getMotorAppliedOutput(){
         return m_driveMotor.getAppliedOutput();
+    }
+
+    public void disable_output(){
+        m_drivePIDController.setOutputRange(0, 0);
     }
 
     //Get Distance Command

@@ -37,11 +37,12 @@ import edu.wpi.first.wpilibj.Notifier;
 
 
 public class RobotContainer {
+    private final boolean DISABLE_WHEELS = false;
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandXboxController m_operator = new CommandXboxController(1);
     private final ControllerButtons m_operator = new ControllerButtons(1);
     
-    public final SwerveSubsystem m_swerve = new SwerveSubsystem();
+    public final SwerveSubsystem m_swerve = new SwerveSubsystem(DISABLE_WHEELS);
 
     public final Shooter m_shooter = new Shooter();
 
@@ -84,7 +85,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooter.stop(), m_shooter),
         new InstantCommand(() -> m_sled.stop(), m_sled))
    );
-
+  
     m_swerve.setDefaultCommand(
       m_swerve.teleopDrive(
         () -> m_driverController.getLeftY(),

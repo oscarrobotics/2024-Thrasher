@@ -68,7 +68,7 @@ public class SwerveSubsystem extends SubsystemBase{
     };
     public SwerveDrivePoseEstimator m_poseEstimator;
 
-    public SwerveSubsystem(){
+    public SwerveSubsystem(Boolean DISABLE_WHEELS){
 
         m_states = new SwerveModuleState[4];
         m_positions = new SwerveModulePosition[4];
@@ -79,6 +79,11 @@ public class SwerveSubsystem extends SubsystemBase{
             //garentees the order of positional offsets is the order of m_modulesu 
             Arrays.stream(m_modules).map(mod -> mod.positionalOffset).toArray(Translation2d[]::new)
         );
+        if (DISABLE_WHEELS){
+            for(SwerveModule mod : m_modules){
+                mod.disable_output();
+            }
+        }
         m_poseEstimator = new SwerveDrivePoseEstimator(
                     m_kinematics, 
                     Rotation2d.fromDegrees(m_gyro.getAngle()) , 
@@ -144,6 +149,7 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean openLoop, boolean steerInPlace){
+        
         setModuleStates(m_kinematics.toSwerveModuleStates(targetChassisSpeeds), openLoop, steerInPlace);
     }
 
@@ -299,12 +305,12 @@ public class SwerveSubsystem extends SubsystemBase{
 		drive(0, 0, 0, true, true);
 	}
 
-    public static SwerveSubsystem getInstance() {
-        if(instance == null){
-            instance = new SwerveSubsystem();
-        }
-        return instance;
-    }
+    // public static SwerveSubsystem getInstance() {
+    //     if(instance == null){
+    //         instance = new SwerveSubsystem();
+    //     }
+    //     return instance;
+    // }
    
     @Override
     public void periodic(){
