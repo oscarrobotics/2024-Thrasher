@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -43,7 +44,10 @@ public class Sled extends SubsystemBase{
     private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(60, 120);
 
     private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0.03, 0, 0, m_Sledconstraints, 0.02); 
+        new ProfiledPIDController(0.04, 0.003, 0.002, m_Sledconstraints, 0.02); 
+
+    private LinearFilter m_potfilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+    
     
     private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
 
@@ -123,9 +127,15 @@ public class Sled extends SubsystemBase{
             System.out.println("Could not apply configs, error code: " + status.toString());
           }
         
+        // m_rightSledPivotMotor.optimizeBusUtilization();
+        // m_leftSledPivotMotor.optimizeBusUtilization();
+        // m_sledMotor.optimizeBusUtilization();
 
         m_Sledcontroller.reset(getSledPivotAngle());
         m_Sledcontroller.setGoal(getSledPivotAngle());
+
+        m_potfilter.reset(new double[]{getPivotVoltage()},new double[]{getPivotVoltage()} 
+        );
 
         m_sledBeamBreaker = new DigitalInput(0);
 
@@ -224,18 +234,18 @@ public class Sled extends SubsystemBase{
 
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
         
-        double sledPivotControllerOutput = m_Sledcontroller.calculate(getSledPivotAngle());
+        double sledPivotControllerOutput = m_Sledcontroller.calculate(m_potfilter.calculate(getSledPivotAngle()));
         T_sledPivotControllerOutput.set(sledPivotControllerOutput);
         m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput)); 
         // SmartDashboard.putNumber("Piv outpt", sledPivotControllerOutput);
-        SmartDashboard.putNumber("Angle", getSledPivotAngle()); 
+        SmartDashboard.putNumber("Angle", m_potfilter.lastValue()); 
 
         T_sledBreak.set(get_beam());
-        T_sledPivot.set(getSledPivotAngle());
+        T_sledPivot.set(m_potfilter.lastValue());
         
         T_inSled.set(isInSled());  
         Logger.recordOutput("SledTarget",m_Sledcontroller.getGoal().position);
-        Logger.recordOutput("SledPosition", getSledPivotAngle());
+        Logger.recordOutput("SledPosition", m_potfilter.lastValue());
         Logger.recordOutput("SledError", m_Sledcontroller.getPositionError());
     }
     

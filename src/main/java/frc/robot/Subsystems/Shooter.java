@@ -110,6 +110,7 @@ public class Shooter extends SubsystemBase{
 
         // m_sledPivotMotor = new TalonFX(1);
         m_shootPivotMotor = new TalonFX(Constants.kShootPivotId, "rio");
+        m_shootPivotMotor.optimizeBusUtilization();
         
 
         m_absoluteEncoder = new DutyCycleEncoder(2);
