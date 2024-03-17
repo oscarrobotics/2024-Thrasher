@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Swerve.SwerveSubsystem;
-import frc.robot.Commands.Intake_note;
+import frc.robot.Commands.Sideload_note;
 import frc.robot.Commands.Outtake_note;
 import frc.robot.Commands.Shoot_note;
 import frc.robot.Commands.Unjam_note;
@@ -37,7 +37,7 @@ import edu.wpi.first.wpilibj.Notifier;
 
 
 public class RobotContainer {
-    private final boolean DISABLE_WHEELS = false;
+    private final boolean DISABLE_WHEELS = true;
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandXboxController m_operator = new CommandXboxController(1);
     private final ControllerButtons m_operator = new ControllerButtons(1);
@@ -57,7 +57,7 @@ public class RobotContainer {
     // public final Sled m_sled = new Sled();
     // SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-    public final Intake_note intake = new Intake_note(m_intake, m_sled);
+    public final Sideload_note intake = new Sideload_note(m_intake, m_sled);
     public final Outtake_note outtake = new Outtake_note(m_intake, m_sled);
     public final Unjam_note unjam = new Unjam_note(m_intake, m_sled);
     public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
@@ -66,7 +66,7 @@ public class RobotContainer {
 
     public RobotContainer(){
       DriverStation.silenceJoystickConnectionWarning(true);
-      // m_visionloop.startPeriodic(0.02);
+      m_vision.runner().schedule();
     // ShootCmd = new RunCommand(
     //     () -> m_shooter.shootNote()).withTimeout(0.1)
     //     .andThen(new WaitCommand(1))
@@ -231,8 +231,6 @@ public class RobotContainer {
     // m_sled.resetSledPivot();
   } 
 
-  public void robotPeriodic(){
-    m_vision.run();
-  }
+ 
 
 }

@@ -12,6 +12,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import static frc.robot.Constants.FieldK.kFieldLayout;
 import static frc.robot.Constants.VisionK.*;
@@ -26,9 +29,13 @@ public class Vision {
     private final Consumer<VisionMeasurement> m_visionMeasurementConsumer;
 
     private final PhotonCamera m_frontTagCam = new PhotonCamera("FrontTag");
+    
     private final PhotonPoseEstimator m_frontTagEst = new PhotonPoseEstimator(
         kFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
         m_frontTagCam, kFrontTagCamLocation);
+    
+    // private VisionMeasurement m_lefMeasurement;
+    // private VisionMeasurement m_Rightmeasurement;
 
 
     private final PhotonCamera m_rearTagCam = new PhotonCamera("RearTag");
@@ -37,9 +44,9 @@ public class Vision {
         m_rearTagCam, kRearTagCamLocation);
 
             
-    private final PhotonCamera m_frontObjCam = new PhotonCamera("FrontColor");
+    // private final PhotonCamera m_frontObjCam = new PhotonCamera("FrontColor");
 
-    private final PhotonCamera m_rearObjCam = new PhotonCamera("RearColor");
+    // private final PhotonCamera m_rearObjCam = new PhotonCamera("RearColor");
 
 
 
@@ -51,6 +58,8 @@ public class Vision {
 
     public Vision(Consumer<VisionMeasurement> visionMeasurementConsumer) {
         m_visionMeasurementConsumer = visionMeasurementConsumer;
+        m_frontTagCam.setDriverMode(false);
+        // m_rearTagCam.setDriverMode(false);
 
     }
 
@@ -69,11 +78,15 @@ public class Vision {
                 new VisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds, kDefaultStdDevs));
         }
 
-        var objCamResult = m_frontObjCam.getLatestResult();
-        if (objCamResult.hasTargets()) {
-            var noteYaw = objCamResult.getBestTarget().getYaw();
-            Logger.recordOutput("bestNoteYaw", noteYaw); // TODO: do something more clever with this
-        }
+        // var objCamResult = m_frontObjCam.getLatestResult();
+        // if (objCamResult.hasTargets()) {
+        //     var noteYaw = objCamResult.getBestTarget().getYaw();
+        //     Logger.recordOutput("bestNoteYaw", noteYaw); // TODO: do something more clever with this
+        // }
+
     
+    }
+    public Command runner(){
+        return new RunCommand(()->run());
     }
 }

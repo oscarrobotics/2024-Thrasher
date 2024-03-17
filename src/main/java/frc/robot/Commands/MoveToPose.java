@@ -26,8 +26,8 @@ public class MoveToPose extends Command {
     double xvelocity, yvelocity; //our x and y components for velocity (translation = x, strafe = y)
     Rotation2d thetaVelocity; //our rotational velocity
 
-    public MoveToPose(Pose2d desiredPose){
-        this.m_swerve = SwerveSubsystem.getInstance();
+    public MoveToPose(Pose2d desiredPose, SwerveSubsystem swerve){
+        this.m_swerve = swerve;
 
         // this.translatePID = new PIDController(0, 0, 0);
         // this.strafePID = new PIDController(0, 0, 0);

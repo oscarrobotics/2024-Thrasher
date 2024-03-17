@@ -43,7 +43,7 @@ public class Shooter extends SubsystemBase{
     // private final Notifier m_note_shot_timings;
     // private boolean m_lastbeam = true;
 
-    private final Notifier m_faster_tilt_pid;
+    // private final Notifier m_faster_tilt_pid;
 
 
 
@@ -56,7 +56,7 @@ public class Shooter extends SubsystemBase{
     private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(40,120);
 
     private ProfiledPIDController m_Tiltcontroller = 
-        new ProfiledPIDController(2.2, 0.01, 0.12, m_Tiltconstraints, 0.01);
+        new ProfiledPIDController(1.2, 0.01, 0.12, m_Tiltconstraints, 0.02);
          
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
@@ -120,7 +120,7 @@ public class Shooter extends SubsystemBase{
         m_shootBeamBreaker = new DigitalInput(1);
         // m_note_shot_timings = new Notifier(this::report_change);
 
-        m_faster_tilt_pid = new Notifier(this::pidup);
+        // m_faster_tilt_pid = new Notifier(this::pidup);
         
 
         m_Timer = new Timer();
@@ -129,7 +129,7 @@ public class Shooter extends SubsystemBase{
         m_Tiltcontroller.reset(getShootPivotAngle());
         m_Tiltcontroller.setGoal(0.483);
 
-        m_faster_tilt_pid.startPeriodic(0.01);
+        // m_faster_tilt_pid.startPeriodic(0.01);
         
         
     }
@@ -262,9 +262,9 @@ public class Shooter extends SubsystemBase{
 
         //really volatile 
 
-        // double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
-        // T_shootPivotControllerOutput.set(shootPivotControllerOutput);
-        // m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
+        double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
+        T_shootPivotControllerOutput.set(shootPivotControllerOutput);
+        m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
 
         T_shootBreak.set(get_beam());
         T_shootPivot.set(getShootPivotAngle());

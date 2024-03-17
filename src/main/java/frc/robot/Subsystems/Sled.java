@@ -4,6 +4,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -232,6 +234,9 @@ public class Sled extends SubsystemBase{
         T_sledPivot.set(getSledPivotAngle());
         
         T_inSled.set(isInSled());  
+        Logger.recordOutput("SledTarget",m_Sledcontroller.getGoal().position);
+        Logger.recordOutput("SledPosition", getSledPivotAngle());
+        Logger.recordOutput("SledError", m_Sledcontroller.getPositionError());
     }
     
 
