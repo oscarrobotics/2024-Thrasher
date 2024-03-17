@@ -51,7 +51,7 @@ public class RobotContainer {
     
 
     public final Vision m_vision = new Vision(m_swerve::addVisionMeasurement);
-    public final Notifier m_visionloop = new Notifier(m_vision::run);
+    // public final Notifier m_visionloop = new Notifier(m_vision::run);
     // public final Intake m_intake = new Intake();
     // public final Sled m_sled = new Sled();
     // SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -65,7 +65,7 @@ public class RobotContainer {
 
     public RobotContainer(){
       DriverStation.silenceJoystickConnectionWarning(true);
-      m_visionloop.startPeriodic(0.04);
+      // m_visionloop.startPeriodic(0.02);
     // ShootCmd = new RunCommand(
     //     () -> m_shooter.shootNote()).withTimeout(0.1)
     //     .andThen(new WaitCommand(1))
@@ -75,7 +75,8 @@ public class RobotContainer {
     //     .finallyDo(() -> m_sled.stop());
    ShootCmd = new SequentialCommandGroup(
       
-       new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
+       
+        new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
         new WaitCommand(0.5),
         new InstantCommand( () ->m_sled.runSled(), m_sled),
         new WaitCommand(1),
@@ -136,54 +137,90 @@ public class RobotContainer {
 
   }
 
-  public Command getAutoCommand(){
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-                Constants.AutoK.kMaxSpeedMetersPerSecond,
-                Constants.AutoK.kMaxAccelerationMetersPerSecondSquared)
-                        .setKinematics(m_swerve.m_kinematics);
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(0)),
-                List.of(
-                        new Translation2d(1, 0),
-                        new Translation2d(1, -1)),
-                new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
-                trajectoryConfig);
-     PIDController xController = new PIDController(AutoK.kPXController, 0, 0);
-     PIDController yController = new PIDController(AutoK.kPYController, 0, 0);
-     ProfiledPIDController thetaController = new ProfiledPIDController(
-                AutoK.kPThetaController, 0, 0, AutoK.kThetaControllerConstraints);
-      thetaController.enableContinuousInput(-Math.PI, Math.PI);
+  // public Command getAutoCommand(){
+  //   TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+  //               Constants.AutoK.kMaxSpeedMetersPerSecond,
+  //               Constants.AutoK.kMaxAccelerationMetersPerSecondSquared)
+  //                       .setKinematics(m_swerve.m_kinematics);
+  //   Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+  //               new Pose2d(0, 0, new Rotation2d(0)),
+  //               List.of(
+  //                       new Translation2d(1, 0),
+  //                       new Translation2d(1, -1)),
+  //               new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
+  //               trajectoryConfig);
+  //    PIDController xController = new PIDController(AutoK.kPXController, 0, 0);
+  //    PIDController yController = new PIDController(AutoK.kPYController, 0, 0);
+  //    ProfiledPIDController thetaController = new ProfiledPIDController(
+  //               AutoK.kPThetaController, 0, 0, AutoK.kThetaControllerConstraints);
+  //     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    // HolonomicDriveController controller = new HolonomicDriveController(xController, yController, thetaController);
+  //   // HolonomicDriveController controller = new HolonomicDriveController(xController, yController, thetaController);
 
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-      trajectory, 
-      m_swerve::getPose, 
-      m_swerve.m_kinematics, 
-      xController,
-      yController,
-      thetaController, 
-      m_swerve::setModuleStates, 
-      m_swerve
-    );
+  //   SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+  //     trajectory, 
+  //     m_swerve::getPose, 
+  //     m_swerve.m_kinematics, 
+  //     xController,
+  //     yController,
+  //     thetaController, 
+  //     m_swerve::setModuleStates, 
+  //     m_swerve
+  //   );
 
-    return new SequentialCommandGroup(
-                ShootCmd,
-                new WaitCommand(2),
-                new InstantCommand(() -> m_swerve.resetOdometry(trajectory.getInitialPose()), m_swerve),
-                swerveControllerCommand,
-                new InstantCommand(() -> m_swerve.stop(), m_swerve));
-    // return new SequentialCommandGroup();
+  //   return new SequentialCommandGroup(
+  //               ShootCmd,
+  //               new WaitCommand(2),
+  //               new InstantCommand(() -> m_swerve.resetOdometry(trajectory.getInitialPose()), m_swerve),
+  //               swerveControllerCommand,
+  //               new InstantCommand(() -> m_swerve.stop(), m_swerve));
+  //   // return new SequentialCommandGroup();
 
-  }
+  // }
 
   //TODO: Fix shoot cmd aspect of auto, otherwise it works
-  public Command getAutoCommand2(){
+
+   public Command getAutoCommand1(){
     return new SequentialCommandGroup(
-      // ShootCmd,
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      ShootCmd,
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(0.6, 0, 0, true, true), m_swerve),
-      new WaitCommand(2),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false, true), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(0, -0.9, 0, false, true), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false, true), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
+    );
+  }
+
+    public Command getAutoCommand2(){
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      ShootCmd,
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, 0, 0, false, true), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, 1, 0, false, true), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false, true), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
+    );
+  }
+
+   public Command getAutoCommand3(){
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      ShootCmd,
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(2, 0, 0, false, true), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.drive(1.7, 0.9, 0, false, true), m_swerve),
+      new WaitCommand(1),
+      // new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false, true), m_swerve),
+      // new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
   }
@@ -192,5 +229,9 @@ public class RobotContainer {
     // m_swerve.resetOdometry();
     // m_sled.resetSledPivot();
   } 
+
+  public void robotPeriodic(){
+    m_vision.run();
+  }
 
 }

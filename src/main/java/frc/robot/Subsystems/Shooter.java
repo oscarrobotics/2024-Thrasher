@@ -53,10 +53,10 @@ public class Shooter extends SubsystemBase{
 
     private DutyCycleEncoder m_absoluteEncoder;
 
-    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(1,20);
+    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(40,120);
 
     private ProfiledPIDController m_Tiltcontroller = 
-        new ProfiledPIDController(1.4, 0.00, 0.08, m_Tiltconstraints, 0.01);
+        new ProfiledPIDController(2.2, 0.01, 0.12, m_Tiltconstraints, 0.01);
          
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
@@ -226,7 +226,7 @@ public class Shooter extends SubsystemBase{
 
     public void shootNote(){
         //if aligned, will shoot
-        m_Tiltcontroller.setGoal(0.487);
+        m_Tiltcontroller.setGoal(0.471);
         
         m_leftShootMotor.set(0.8); //between -1 and 1
         m_rightShootMotor.set(-0.8);
