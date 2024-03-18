@@ -24,10 +24,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Swerve.SwerveSubsystem;
-import frc.robot.Commands.Sideload_note;
+import frc.robot.Commands.Intake_note;
 import frc.robot.Commands.Outtake_note;
 import frc.robot.Commands.Shoot_note;
 import frc.robot.Commands.Unjam_note;
+import frc.robot.Commands.Sideload_note;
+import frc.robot.Commands.*;
 import frc.robot.Constants.AutoK;
 import frc.robot.Subsystems.Intake;
 import frc.robot.Subsystems.Shooter;
@@ -57,10 +59,14 @@ public class RobotContainer {
     // public final Sled m_sled = new Sled();
     // SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-    public final Sideload_note intake = new Sideload_note(m_intake, m_sled);
+    public final Intake_note intake = new Intake_note(m_intake, m_sled);
     public final Outtake_note outtake = new Outtake_note(m_intake, m_sled);
     public final Unjam_note unjam = new Unjam_note(m_intake, m_sled);
     public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
+    public final Sideload_note sideload_note = new Sideload_note(m_intake, m_sled);
+    public final Ampload_note   ampload_note = new Ampload_note(m_shooter, m_sled);
+    public final Ampfire ampfire = new Ampfire(m_shooter, m_sled);
+
 
     Command ShootCmd;
 
@@ -75,8 +81,10 @@ public class RobotContainer {
     //     .andThen(() -> m_shooter.stop())
     //     .finallyDo(() -> m_sled.stop());
    ShootCmd = new SequentialCommandGroup(
+
       
-       
+        new InstantCommand(()->m_shooter.tilt_strait()),
+        new WaitCommand(0.4).until(()->m_shooter.isShootAligned()),
         new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
         new WaitCommand(0.5),
         new InstantCommand( () ->m_sled.runSled(), m_sled),
@@ -117,6 +125,20 @@ public class RobotContainer {
     m_operator.arcadeBlackRight().onTrue(unjam);
     m_operator.arcadeWhiteRight().onTrue(ShootCmd);
     // m_operator.a().onTrue() -> something to do with shoot or intake
+
+    m_operator.sc1().onTrue(sideload_note);
+    m_operator.sc2().onTrue(ampload_note);
+    // m_operator.sc2().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(100), m_shooter)
+    // .andThen(new WaitCommand(2))
+    // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
+    m_operator.sc3().onTrue(ampfire);
+    // m_operator.sc3().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(1000), m_shooter)
+    // .andThen(new WaitCommand(2))
+    // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
+    m_operator.sc4().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(), m_shooter)
+    .andThen(new WaitCommand(2))
+    .andThen(new InstantCommand(()->m_shooter.zero_speed()))
+    );
       
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
     // Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);

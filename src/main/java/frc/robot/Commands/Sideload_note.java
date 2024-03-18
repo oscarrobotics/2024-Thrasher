@@ -24,8 +24,8 @@ public class Sideload_note extends Command {
     public Sideload_note(Intake intake, Sled sled){
         this.m_intake = intake;
         this.m_sled = sled;
-        this.runtime = 2;
-
+        this.runtime = 0.8;
+        addRequirements(intake, sled);
         // parallel = new ParallelRaceGroup(m_intake.intakeCommand(), m_sled.feed());
 
        
@@ -34,7 +34,7 @@ public class Sideload_note extends Command {
         this.m_intake = intake;
         this.m_sled = sled;
         this.runtime = time;
-
+        addRequirements(intake, sled);
         isFirstExecute = true;
 
 
@@ -72,6 +72,7 @@ public class Sideload_note extends Command {
         m_sled.stop();
         // m_sled.goToSledPose();
         m_timer.stop();
+        isFirstExecute=true;
    
     }
 }

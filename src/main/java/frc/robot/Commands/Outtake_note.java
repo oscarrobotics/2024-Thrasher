@@ -20,6 +20,7 @@ public class Outtake_note extends Command {
         this.m_intake = intake;
         this.m_sled = sled;
         this.runtime = 2;
+        addRequirements(intake, sled);
 
         isFirstExecute = true;
        
@@ -28,6 +29,7 @@ public class Outtake_note extends Command {
         this.m_intake = intake;
         this.m_sled = sled;
         this.runtime = time;
+        addRequirements(intake, sled);
 
         isFirstExecute = true;
     }
@@ -38,6 +40,7 @@ public class Outtake_note extends Command {
     public void initialize(){  
         isFirstExecute = true;
         m_sled.goToIntakePose();
+        m_timer.reset();
         m_timer.start();
 
     }
@@ -63,6 +66,7 @@ public class Outtake_note extends Command {
         m_intake.stop();
         m_sled.stop();
         m_timer.stop();
+        isFirstExecute = true;
    
     }
 }

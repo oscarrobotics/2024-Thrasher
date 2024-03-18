@@ -18,11 +18,13 @@ public class Shoot_note extends Command{
         this.m_sled = m_sled;
         m_timer = new Timer();
         runtime = 3;
+        addRequirements(m_shooter, m_sled);
     }
 
     @Override
     public void initialize(){
         // m_shooter.setTargetTilt(10);
+        m_timer.reset();
         m_timer.start();
 
         isFirstExecute = true;
@@ -35,5 +37,11 @@ public class Shoot_note extends Command{
             isFirstExecute = false;
         }
         m_shooter.shootNote();
+    }
+    
+    @Override
+    public void end(boolean interrupted){
+        isFirstExecute = true;
+        m_timer.stop();
     }
 }

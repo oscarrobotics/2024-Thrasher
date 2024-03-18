@@ -25,7 +25,7 @@ public class Unjam_note extends Command {
         this.m_intake = intake;
         this.m_sled = sled;
         this.runtime = 2;
-
+        addRequirements(intake, sled);
         // parallel = new ParallelRaceGroup(m_intake.intakeCommand(), m_sled.feed());
 
        
@@ -34,6 +34,7 @@ public class Unjam_note extends Command {
         this.m_intake = intake;
         this.m_sled = sled;
         this.runtime = time;
+        addRequirements(intake, sled);
 
         isFirstExecute = true;
 
@@ -46,6 +47,7 @@ public class Unjam_note extends Command {
     public void initialize(){  
         isFirstExecute = true;
         m_sled.goToIntakePose();
+        m_timer.reset();
         m_timer.start();
       
     }
@@ -72,6 +74,7 @@ public class Unjam_note extends Command {
         m_sled.stop();
         // m_sled.goToSledPose();
         m_timer.stop();
+        isFirstExecute = true;
    
     }
 }

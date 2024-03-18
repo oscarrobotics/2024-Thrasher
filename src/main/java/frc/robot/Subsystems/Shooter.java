@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -53,10 +54,12 @@ public class Shooter extends SubsystemBase{
 
     private DutyCycleEncoder m_absoluteEncoder;
 
-    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(40,120);
+    private TrapezoidProfile.Constraints m_Tiltconstraints = new TrapezoidProfile.Constraints(80,120);
 
     private ProfiledPIDController m_Tiltcontroller = 
-        new ProfiledPIDController(1.2, 0.01, 0.12, m_Tiltconstraints, 0.02);
+        new ProfiledPIDController(4, 0.01, 0.012, m_Tiltconstraints, 0.02);
+    
+    private final double tilt_kFF = 0.125;
          
 
     private final VelocityVoltage m_request = new VelocityVoltage(0);
@@ -85,6 +88,8 @@ public class Shooter extends SubsystemBase{
         T_shootBreak = NT.getBooleanTopic("shootBreak").publish();
        
         T_shootPivotControllerOutput = NT.getDoubleTopic("pivOutput").publish();
+
+
         
         
         m_leftShootMotor = new CANSparkFlex(Constants.kLeftShootMotorId, MotorType.kBrushless);
@@ -93,15 +98,17 @@ public class Shooter extends SubsystemBase{
         m_leftPID = m_leftShootMotor.getPIDController();
         m_rightPID = m_rightShootMotor.getPIDController();
 
-        m_leftPID.setP(0.01);
-        m_leftPID.setI(0.000);
-        m_leftPID.setD(0.000);
-        m_leftPID.setFF(0.002);
+        m_leftPID.setP(0.00005);
+        m_leftPID.setI(0.0000003);
+        m_leftPID.setIZone(100);
+        m_leftPID.setD(0.0000001);
+        m_leftPID.setFF(0.00017);
 
-        m_rightPID.setP(0.01);
-        m_rightPID.setI(0.000);
-        m_rightPID.setD(0.000);
-        m_rightPID.setFF(0.002); //12V / 6000 RPM
+        m_rightPID.setP(0.00004);//0.000045
+        m_rightPID.setI(0.000000035);//0.00000015
+        m_leftPID.setIZone(100);
+        m_rightPID.setD(0.0000001);
+        m_rightPID.setFF(0.000165); //12V / 6000 RPM
 
         
         //sled pivot
@@ -203,13 +210,17 @@ public class Shooter extends SubsystemBase{
     
     public boolean isShootAligned(){
         //If our shoot is aligned, this statement is true, otherwise return false
-        isShootAligned = getShootPivotAngle() == targetAngle;
+        isShootAligned =  Math.abs(getShootPivotAngle()  -m_Tiltcontroller.getGoal().position)<=0.007;
 
         return isShootAligned;
     }
     public void tilt_strait()
     {
-        m_Tiltcontroller.setGoal(0.487);
+        m_Tiltcontroller.setGoal(0.483);
+    }
+    public void tilt_amp()
+    {
+        m_Tiltcontroller.setGoal(0.683);
     }
 
     public boolean get_beam(){
@@ -225,26 +236,68 @@ public class Shooter extends SubsystemBase{
     //TODO: Change to RunEnd cmd(?); Add PID
     
 
+    // public void shootNote(){
+    //     //if aligned, will shoot
+    //     // m_Tiltcontroller.setGoal(0.471);
+        
+        
+    //     m_leftShootMotor.set(0.8); //between -1 and 1
+    //     m_rightShootMotor.set(-0.8);
+
+    // }
     public void shootNote(){
         //if aligned, will shoot
-        m_Tiltcontroller.setGoal(0.471);
+        // m_Tiltcontroller.setGoal(0.471);
+        
         
         m_leftShootMotor.set(0.8); //between -1 and 1
         m_rightShootMotor.set(-0.8);
 
     }
 
+    public void shootNote_speed(){
+        set_wheel_speeds(5000);
+    }
+
+    public void shootNote_speed(double speed){
+        set_wheel_speeds(speed);
+    }
+
     public void stop(){
         m_leftShootMotor.set(0);
         m_rightShootMotor.set(0);
+        leftTargetSpd = 0;
+        rightTargetSpd = 0;
     }
 
-    public void set_shoot_speed(double speed){
+    public void zero_speed(){
+        set_wheel_speeds(0);
+        leftTargetSpd = 0;
+        rightTargetSpd = 0;
+    }
+
+    public void set_wheel_speeds(double leftspeed, double rightspeed){
+        m_leftPID.setReference(leftspeed, CANSparkBase.ControlType.kVelocity);
+        m_rightPID.setReference(-rightspeed, CANSparkBase.ControlType.kVelocity);
+
+        leftTargetSpd = leftspeed;
+        rightTargetSpd = -rightspeed;
+    }
+    public void set_wheel_speeds(double speed){
         m_leftPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
-        m_rightPID.setReference(speed, CANSparkBase.ControlType.kVelocity);
+        m_rightPID.setReference(-speed, CANSparkBase.ControlType.kVelocity);
 
         leftTargetSpd = speed;
-        rightTargetSpd = speed;
+        rightTargetSpd = -speed;
+}
+
+    public void loadnote(){
+      set_wheel_speeds(1800);
+    }
+
+    public void unload_amp(){
+        set_wheel_speeds(-900);
+
     }
   
     public Command tilt_Shooter(Supplier<Double> shootangle){
@@ -263,7 +316,7 @@ public class Shooter extends SubsystemBase{
 
         //really volatile 
 
-        double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle());
+        double shootPivotControllerOutput = m_Tiltcontroller.calculate(getShootPivotAngle())+(m_Tiltcontroller.getGoal().position*tilt_kFF)-(tilt_kFF*0.35);
         T_shootPivotControllerOutput.set(shootPivotControllerOutput);
         m_shootPivotMotor.setControl(motorRequest.withOutput(shootPivotControllerOutput)); 
 
@@ -272,10 +325,11 @@ public class Shooter extends SubsystemBase{
 
         Logger.recordOutput("Left Speed", m_leftShootMotor.getEncoder().getVelocity());
         Logger.recordOutput("Right Speed", m_rightShootMotor.getEncoder().getVelocity());
-        Logger.recordOutput("Left Shooter Setting", m_leftShootMotor.get());
-        Logger.recordOutput("Right Shooter Setting", m_rightShootMotor.get());
+        Logger.recordOutput("Left Shooter Setting", leftTargetSpd);
+        Logger.recordOutput("Right Shooter Setting", rightTargetSpd);
         Logger.recordOutput("Pivot Angle", getShootPivotAngle());
         Logger.recordOutput("Pivot Error", m_Tiltcontroller.getPositionError());
+        Logger.recordOutput("Pivot Target", m_Tiltcontroller.getGoal().position);
         Logger.recordOutput("Left Velocity Error", leftTargetSpd - m_leftShootMotor.getEncoder().getVelocity());
         Logger.recordOutput("Right Velocity Error",  rightTargetSpd - m_rightShootMotor.getEncoder().getVelocity());
       
