@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import java.util.stream.Collector;
 
 import frc.robot.PhotonCameraWrapper;
+import frc.robot.Constants.AutoK;
 import frc.robot.Vision.VisionMeasurement;
 
 import org.littletonrobotics.junction.Logger;
@@ -25,6 +26,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -57,6 +59,8 @@ public class SwerveSubsystem extends SubsystemBase{
     SwerveModuleState[] m_states;
     SwerveModulePosition[] m_positions;
     // public PhotonCameraWrapper pcw;
+
+    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(0, 0, 0, AutoK.kThetaControllerConstraints);
 
     static SwerveSubsystem instance;
 
@@ -128,11 +132,11 @@ public class SwerveSubsystem extends SubsystemBase{
                         "Pathplanner/Abs Translation Error",
                         poses.minus(getPose()).getTranslation().getNorm());
                 });
-                
+
             SmartDashboard.putData("Field", m_field);
     }
 
-
+    //open-loop
     public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
  
         m_chassisSpeeds = fieldRelative
@@ -150,6 +154,16 @@ public class SwerveSubsystem extends SubsystemBase{
             
 
         setChassisSpeeds(m_chassisSpeeds, isOpenLoop, false, turnCenter);
+    }
+    //closed-loop
+    public boolean drive(double vxMeters, double vyMeters, Rotation2d targetRotation, boolean openLoop){
+        double rot = getPose().getRotation().getRadians();
+        double PIDOutput = m_thetaController.calculate(rot, targetRotation.getRadians());
+
+        ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, PIDOutput, getHeading());
+
+        setChassisSpeeds(targetChassisSpeeds, openLoop, false);
+        return m_thetaController.atGoal();
     }
 
     public ChassisSpeeds getChassisSpeeds(){
