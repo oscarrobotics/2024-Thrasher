@@ -119,8 +119,16 @@ public class SwerveSubsystem extends SubsystemBase{
                     return false;
                 }, 
                 this);
-            PathPlannerLogging.setLogActivePathCallback((poses) -> m_field.getObject("path").setPoses(poses));
+            PathPlannerLogging.setLogActivePathCallback((poses) -> m_field.getObject("Pathplanner/Current Path").setPoses(poses));
 
+            PathPlannerLogging.setLogTargetPoseCallback(
+                (poses) -> {
+                    Logger.recordOutput("Pathplanner/Target", poses);
+                    Logger.recordOutput(
+                        "Pathplanner/Abs Translation Error",
+                        poses.minus(getPose()).getTranslation().getNorm());
+                });
+                
             SmartDashboard.putData("Field", m_field);
     }
 

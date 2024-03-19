@@ -10,17 +10,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 import java.io.File;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -51,6 +54,9 @@ public class Robot extends LoggedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+  private LoggedDashboardChooser<Command> m_autoChooser =
+    new LoggedDashboardChooser<>("Auto Chooser");
+
   @Override
   public void robotInit() {
     SetupLog();
@@ -80,6 +86,8 @@ public class Robot extends LoggedRobot {
     // m_chooser.addOption("My Auto", kCustomAuto);
     // SmartDashboard.putData("Auto choices", m_chooser);
 
+    m_autoChooser.addDefaultOption("None", Commands.none());
+    m_autoChooser.addOption("Dummy Auto", new PathPlannerAuto("New Path"));
   }
 
   void SetupLog(){
@@ -97,7 +105,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutoCommand3();
+    // m_autonomousCommand = m_robotContainer.getAutoCommand3();
+    m_autonomousCommand = m_autoChooser.get();
         // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
