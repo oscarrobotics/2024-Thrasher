@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj.Notifier;
 
 public class RobotContainer {
     private final boolean DISABLE_WHEELS = false;
+    private boolean m_normalDrive = true;
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandXboxController m_operator = new CommandXboxController(1);
     private final ControllerButtons m_operator = new ControllerButtons(1);
@@ -104,7 +105,7 @@ public class RobotContainer {
       )
      
     );
-    m_driverController.a().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
+    m_driverController.y().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
     m_driverController.b().whileTrue(
       m_swerve.evasiveDrive(
         () -> m_driverController.getLeftY(),
@@ -115,6 +116,7 @@ public class RobotContainer {
       )
       
     );
+    m_driverController.x().onTrue(new InstantCommand(()->toggleDriveMode()));
     m_driverController.leftBumper().onTrue(intake);
     m_driverController.rightBumper().onTrue(ShootCmd);
 
@@ -159,6 +161,7 @@ public class RobotContainer {
     );
 
   }
+  
 
   // public Command getAutoCommand(){
   //   TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
@@ -208,11 +211,11 @@ public class RobotContainer {
       new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
       ShootCmd,
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(0, -0.9, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(0, -0.9, 0, false), m_swerve),
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
       new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
@@ -223,11 +226,11 @@ public class RobotContainer {
       new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
       ShootCmd,
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1, 0, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1, 1, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1, 1, 0, false), m_swerve),
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false ), m_swerve),
       new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
@@ -238,15 +241,46 @@ public class RobotContainer {
       new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
       ShootCmd,
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(2, 0, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
       new WaitCommand(1),
-      new InstantCommand(() -> m_swerve.drive(1.7, 0.9, 0, false, true), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1.7, 0.9, 0, false), m_swerve),
       new WaitCommand(1),
       // new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false, true), m_swerve),
       // new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
   }
+
+  
+  private void toggleDriveMode(){
+  
+      if (m_normalDrive){
+        m_swerve.setDefaultCommand(
+          m_swerve.teleop_dir_drive(
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
+            () -> m_driverController.getRightX(),
+            () -> m_driverController.getRightY()
+          )
+        
+        );
+        
+        m_normalDrive = false;
+
+      } else {
+        m_swerve.setDefaultCommand(
+          m_swerve.teleopDrive(
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
+            () -> m_driverController.getRightX(),
+            () -> m_driverController.getLeftTriggerAxis()>=0,
+            () -> true
+          )
+        );
+        m_normalDrive = true;
+      }
+    
+  } 
   
   public void teleopInit(){
     // m_swerve.resetOdometry();

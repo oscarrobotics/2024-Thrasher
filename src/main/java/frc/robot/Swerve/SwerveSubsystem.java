@@ -190,6 +190,26 @@ public class SwerveSubsystem extends SubsystemBase{
         return m_thetaController.atGoal();
     }
 
+    public Command teleop_dir_drive(
+            DoubleSupplier translation, DoubleSupplier strafe, DoubleSupplier rotationX,
+            DoubleSupplier rotationY){
+        return run(() -> {
+            double translationVal = MathUtil.applyDeadband(translation.getAsDouble(), Constants.swerveDeadband);
+            double strafeVal = MathUtil.applyDeadband(strafe.getAsDouble(), Constants.swerveDeadband);
+            double rot_X = MathUtil.applyDeadband(rotationX.getAsDouble(), Constants.swerveDeadband);
+            double rot_Y = MathUtil.applyDeadband(rotationY.getAsDouble(), Constants.swerveDeadband);
+            
+
+            translationVal *= Constants.kPhysicalMaxSpeedMetersPerSecond;
+
+            strafeVal *= Constants.kPhysicalMaxSpeedMetersPerSecond;
+
+            // rotationVal *= Constants.kMaxRotSpeedRadPerSecond; // if this needs to be used, we need to rewroke the dir_drive a little bit
+
+            dir_drive(translationVal, strafeVal, rot_X , rot_Y );
+        }).withName("Teleop Dir_Drive");
+    }
+
     public ChassisSpeeds getChassisSpeeds(){
         return m_kinematics.toChassisSpeeds(getModuleStates());
     }
