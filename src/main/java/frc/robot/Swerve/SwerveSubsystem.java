@@ -26,6 +26,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -60,8 +61,12 @@ public class SwerveSubsystem extends SubsystemBase{
     SwerveModulePosition[] m_positions;
     // public PhotonCameraWrapper pcw;
 
-    private final ProfiledPIDController m_thetaController = new ProfiledPIDController(0, 0, 0, AutoK.kThetaControllerConstraints);
-
+    private PIDController m_xController = new PIDController(AutoK.kPXController, 0, 0);
+    private PIDController m_yController = new PIDController(AutoK.kPYController, 0, 0);
+    private ProfiledPIDController m_thetaController = new ProfiledPIDController(
+                AutoK.kPThetaController, 0, 0, AutoK.kThetaControllerConstraints);
+    
+    private double  m_rot_dir;
     static SwerveSubsystem instance;
 
     public final SwerveModule[] m_modules = new SwerveModule[]{
@@ -83,6 +88,11 @@ public class SwerveSubsystem extends SubsystemBase{
             //garentees the order of positional offsets is the order of m_modulesu 
             Arrays.stream(m_modules).map(mod -> mod.positionalOffset).toArray(Translation2d[]::new)
         );
+
+        m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+
+
         if (DISABLE_WHEELS){
             for(SwerveModule mod : m_modules){
                 mod.disable_output();
@@ -133,19 +143,22 @@ public class SwerveSubsystem extends SubsystemBase{
                         poses.minus(getPose()).getTranslation().getNorm());
                 });
 
-            SmartDashboard.putData("Field", m_field);
+            // SmartDashboard.putData("Field", m_field);
+
+            m_rot_dir =  m_poseEstimator.getEstimatedPosition().getRotation().getRadians(); //this is the current rotation of the robot
+
     }
 
     //open-loop
-    public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop){
+    public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative){
  
         m_chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
             : new ChassisSpeeds(vxMeters, vyMeters, omegaRadians);
 
-        setChassisSpeeds(m_chassisSpeeds, isOpenLoop, false);
+        setChassisSpeeds(m_chassisSpeeds, false, false);
     }
-    public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative, boolean isOpenLoop, Translation2d turnCenter){
+    public void drive(double vxMeters, double vyMeters, double omegaRadians, boolean fieldRelative,  Translation2d turnCenter){
  
         m_chassisSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, omegaRadians, getHeading())
@@ -153,16 +166,27 @@ public class SwerveSubsystem extends SubsystemBase{
      
             
 
-        setChassisSpeeds(m_chassisSpeeds, isOpenLoop, false, turnCenter);
+        setChassisSpeeds(m_chassisSpeeds, false, false, turnCenter);
     }
     //closed-loop
-    public boolean drive(double vxMeters, double vyMeters, Rotation2d targetRotation, boolean openLoop){
+    
+    public boolean dir_drive(double vxMeters, double vyMeters, double rotx, double roty){
         double rot = getPose().getRotation().getRadians();
+
+        //calculate the angle of the target rotation from the vector rotx, roty
+        Translation2d theta_vector = new Translation2d(rotx, roty);
+        Rotation2d targetRotation =  theta_vector.getAngle(); // this is the autmatic built in funtion of the what I was talking about on the board
+        
+        if (theta_vector.getNorm() >= 0.5){ // check if the use is trying to rotate
+            m_rot_dir = targetRotation.getRadians();
+        }
+
+
         double PIDOutput = m_thetaController.calculate(rot, targetRotation.getRadians());
 
         ChassisSpeeds targetChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vxMeters, vyMeters, PIDOutput, getHeading());
 
-        setChassisSpeeds(targetChassisSpeeds, openLoop, false);
+        setChassisSpeeds(targetChassisSpeeds, true, false);
         return m_thetaController.atGoal();
     }
 
@@ -250,7 +274,7 @@ public class SwerveSubsystem extends SubsystemBase{
             strafeVal *= Constants.kPhysicalMaxSpeedMetersPerSecond;
 
             rotationVal *= Constants.kMaxRotSpeedRadPerSecond;
-            drive(translationVal, strafeVal, rotationVal, fieldRelative.getAsBoolean(), isOpenLoop);
+            drive(translationVal, strafeVal, rotationVal, fieldRelative.getAsBoolean());
         }).withName("Teleop Drive");
     }
     public Command evasiveDrive(
@@ -281,7 +305,7 @@ public class SwerveSubsystem extends SubsystemBase{
             
 
 
-            drive(translationVal, strafeVal, rotationVal, fieldRelative.getAsBoolean(), isOpenLoop, turningCenter);
+            drive(translationVal, strafeVal, rotationVal, fieldRelative.getAsBoolean(), turningCenter);
         }).withName("Evasive Drive");
     }
 
@@ -324,7 +348,7 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void stop() {
-		drive(0, 0, 0, true, true);
+		drive(0, 0, 0, true );
 	}
 
     // public static SwerveSubsystem getInstance() {

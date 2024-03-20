@@ -39,7 +39,7 @@ import edu.wpi.first.wpilibj.Notifier;
 
 
 public class RobotContainer {
-    private final boolean DISABLE_WHEELS = true;
+    private final boolean DISABLE_WHEELS = false;
     private final CommandXboxController m_driverController = new CommandXboxController(0);
     // private final CommandXboxController m_operator = new CommandXboxController(1);
     private final ControllerButtons m_operator = new ControllerButtons(1);
@@ -99,7 +99,7 @@ public class RobotContainer {
         () -> m_driverController.getLeftY(),
         () -> m_driverController.getLeftX(),
         () -> m_driverController.getRightX(),
-        () -> true,
+        () -> m_driverController.getLeftTriggerAxis()>=0,
         () -> true
       )
      
