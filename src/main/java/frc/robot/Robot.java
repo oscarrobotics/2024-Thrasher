@@ -87,7 +87,7 @@ public class Robot extends LoggedRobot {
     // SmartDashboard.putData("Auto choices", m_chooser);
 
     m_autoChooser.addDefaultOption("None", Commands.none());
-    m_autoChooser.addOption("Dummy Auto", new PathPlannerAuto("New Path"));
+    // m_autoChooser.addOption("Dummy Auto", new PathPlannerAuto("New Path"));
   }
 
   void SetupLog(){

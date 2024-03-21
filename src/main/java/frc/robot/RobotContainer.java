@@ -100,7 +100,7 @@ public class RobotContainer {
         () -> m_driverController.getLeftY(),
         () -> m_driverController.getLeftX(),
         () -> m_driverController.getRightX(),
-        () -> m_driverController.getLeftTriggerAxis()>=0,
+        () -> m_driverController.getRightTriggerAxis()<=0.5,
         () -> true
       )
      
@@ -273,7 +273,7 @@ public class RobotContainer {
             () -> m_driverController.getLeftY(),
             () -> m_driverController.getLeftX(),
             () -> m_driverController.getRightX(),
-            () -> m_driverController.getLeftTriggerAxis()>=0,
+            () -> m_driverController.getRightTriggerAxis()<=0.5,
             () -> true
           )
         );

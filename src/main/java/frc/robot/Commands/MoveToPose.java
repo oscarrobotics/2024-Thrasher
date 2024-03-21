@@ -81,7 +81,7 @@ public class MoveToPose extends Command {
     @Override
     public void initialize(){                   //Vizualizes camera on Shuffleboard
         CameraServer.startAutomaticCapture();
-        m_swerve.drive(xvelocity, yvelocity, thetaVelocity.getRadians(), true, true);
+        m_swerve.drive(xvelocity, yvelocity, thetaVelocity.getRadians(), true);
     }
 
     @Override
