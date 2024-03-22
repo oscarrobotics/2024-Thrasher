@@ -339,7 +339,7 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void resetOdometry(){
-        m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), 
+        m_poseEstimator.resetPosition(m_gyro.getRotation2d(), 
         getModulePositions(), 
         new Pose2d(new Translation2d(0,0), 
         Rotation2d.fromDegrees(180)));
@@ -347,7 +347,7 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void resetOdometry(Pose2d pose){
-        m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), getModulePositions(), pose);
+        m_poseEstimator.resetPosition(m_gyro.getRotation2d(), getModulePositions(), pose);
     }
 
     public void updateOdometry(){
