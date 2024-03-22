@@ -236,7 +236,12 @@ public class SwerveSubsystem extends SubsystemBase{
 		}
 		return m_states;
 	}
+    // public SwerveModuleState[] getModuleStates_unrolled(){
+    //     return new SwerveModuleState[]{
+    //         m_
+    //     }
 
+    // }
     public SwerveModulePosition[] getModulePositions() {
 		for (SwerveModule mod : m_modules) {
 			m_positions[mod.moduleNumber] = mod.getPosition();
@@ -342,7 +347,7 @@ public class SwerveSubsystem extends SubsystemBase{
     }
 
     public void resetOdometry(Pose2d pose){
-        m_poseEstimator.resetPosition(getHeading(), getModulePositions(), pose);
+        m_poseEstimator.resetPosition(Rotation2d.fromDegrees(m_gyro.getAngle()), getModulePositions(), pose);
     }
 
     public void updateOdometry(){
