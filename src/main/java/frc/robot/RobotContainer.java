@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -128,22 +129,32 @@ public class RobotContainer {
     m_operator.arcadeWhiteRight().onTrue(ShootCmd);
     // m_operator.a().onTrue() -> something to do with shoot or intake
 
-    m_operator.sc1().onTrue(sideload_note);
-    m_operator.sc2().onTrue(ampload_note);
+    // m_operator.sc1().onTrue(sideload_note);
+    // m_operator.sc2().onTrue(ampload_note);
+
     // m_operator.sc2().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(100), m_shooter)
     // .andThen(new WaitCommand(2))
     // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
-    m_operator.sc3().onTrue(ampfire);
+
+    // m_operator.sc3().onTrue(ampfire);
+
     // m_operator.sc3().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(1000), m_shooter)
     // .andThen(new WaitCommand(2))
     // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
-    m_operator.sc4().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(), m_shooter)
-    .andThen(new WaitCommand(2))
-    .andThen(new InstantCommand(()->m_shooter.zero_speed()))
-    );
+
+    // m_operator.sc4().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(), m_shooter)
+    // .andThen(new WaitCommand(2))
+    // .andThen(new InstantCommand(()->m_shooter.zero_speed()))
+    // );
       
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
     // Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
+
+    m_operator.sc1().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*5/6)))));
+    m_operator.sc2().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI)))));
+    m_operator.sc3().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*7/6)))));
+    m_operator.sc4().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*-5/6)))));
+    m_operator.sc5().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*-7/6)))));
     
     m_sled.setDefaultCommand(
     
@@ -206,9 +217,9 @@ public class RobotContainer {
 
   //TODO: Fix shoot cmd aspect of auto, otherwise it works
 
-   public Command getAutoCommand1(){
+   public Command getAutoCommand1BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*5/6)))),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
@@ -221,9 +232,9 @@ public class RobotContainer {
     );
   }
 
-    public Command getAutoCommand2(){
+    public Command getAutoCommand2BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI)))),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
@@ -236,9 +247,9 @@ public class RobotContainer {
     );
   }
 
-   public Command getAutoCommand3(){
+   public Command getAutoCommand3BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*3/4)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*7/6)))),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
@@ -247,6 +258,50 @@ public class RobotContainer {
       new WaitCommand(1),
       // new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false, true), m_swerve),
       // new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
+    );
+  }
+  public Command getAutoCommand1RED(){
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*-5/6)))),
+      ShootCmd,
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(0, -0.9, 0, false), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
+    );
+  }
+
+    public Command getAutoCommand2RED(){
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI)))),
+      ShootCmd,
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1, -1, 0, false), m_swerve),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false ), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.stop(), m_swerve)
+    );
+  }
+
+   public Command getAutoCommand3RED(){
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*7/6)))),
+      ShootCmd,
+      new WaitCommand(0.5),
+      new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.drive(1.7, -0.9, 0, false), m_swerve),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false), m_swerve),
+      new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
   }

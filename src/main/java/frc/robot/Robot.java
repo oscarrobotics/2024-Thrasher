@@ -87,6 +87,12 @@ public class Robot extends LoggedRobot {
     // SmartDashboard.putData("Auto choices", m_chooser);
 
     m_autoChooser.addDefaultOption("None", Commands.none());
+    // m_autoChooser.addOption("Blue1", m_robotContainer.getAutoCommand1BLUE());
+    // m_autoChooser.addOption("Blue2", m_robotContainer.getAutoCommand2BLUE());
+    // m_autoChooser.addOption("Blue3", m_robotContainer.getAutoCommand3BLUE());
+    // m_autoChooser.addOption("Red1", m_robotContainer.getAutoCommand1RED());
+    // m_autoChooser.addOption("Red2", m_robotContainer.getAutoCommand2RED());
+    // m_autoChooser.addOption("Red3", m_robotContainer.getAutoCommand3RED());
     // m_autoChooser.addOption("Dummy Auto", new PathPlannerAuto("New Path"));
   }
 
@@ -105,8 +111,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    // m_autonomousCommand = m_robotContainer.getAutoCommand3();
-    m_autonomousCommand = m_autoChooser.get();
+    m_autonomousCommand = m_robotContainer.getAutoCommand1BLUE();
+    // m_autonomousCommand = m_autoChooser.get();
         // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
