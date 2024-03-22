@@ -59,7 +59,7 @@ public class Ampload_note extends Command {
             m_timer.reset();
             isFirstExecute = false;
             }
-        m_shooter.shootNote_speed();
+        // m_shooter.shootNote_speed();
         
         if(m_timer.hasElapsed(0.4))
         m_shooter.loadnote();

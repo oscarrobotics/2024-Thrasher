@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -41,15 +42,15 @@ public class Sled extends SubsystemBase{
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor;
 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(60, 120);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(240, 80);
 
     private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0.04, 0.003, 0.002, m_Sledconstraints, 0.02); 
+        new ProfiledPIDController(0.08, 0.003, 0.002, m_Sledconstraints, 0.02); 
 
-    private LinearFilter m_potfilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+    private LinearFilter m_potfilter = LinearFilter.singlePoleIIR(0.01, 0.02);
     
     
-    private DutyCycleOut motorRequest = new DutyCycleOut(0.0); 
+    private VoltageOut motorRequest = new VoltageOut(0.0); 
 
     private TalonFX m_sledMotor;
 
@@ -235,18 +236,23 @@ public class Sled extends SubsystemBase{
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
         
         double sledPivotControllerOutput = m_Sledcontroller.calculate(m_potfilter.calculate(getSledPivotAngle()));
-        T_sledPivotControllerOutput.set(sledPivotControllerOutput);
-        m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput)); 
+        // T_sledPivotControllerOutput.set(sledPivotControllerOutput);
+        m_leftSledPivotMotor.setControl(motorRequest.withOutput(12*sledPivotControllerOutput)); 
         // SmartDashboard.putNumber("Piv outpt", sledPivotControllerOutput);
         SmartDashboard.putNumber("Angle", m_potfilter.lastValue()); 
 
-        T_sledBreak.set(get_beam());
-        T_sledPivot.set(m_potfilter.lastValue());
+        // T_sledBreak.set(get_beam());
+        // T_sledPivot.set(m_potfilter.lastValue());
         
-        T_inSled.set(isInSled());  
+        // T_inSled.set(isInSled());  
+
+
+        Logger.recordOutput("sledBreak", get_beam());
+        Logger.recordOutput("in_sled", isInSled());
         Logger.recordOutput("SledTarget",m_Sledcontroller.getGoal().position);
         Logger.recordOutput("SledPosition", m_potfilter.lastValue());
         Logger.recordOutput("SledError", m_Sledcontroller.getPositionError());
+        // Logger.recordOutput("sled sped", n);
     }
     
 

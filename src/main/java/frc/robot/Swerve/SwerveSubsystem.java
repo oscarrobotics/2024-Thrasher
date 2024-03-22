@@ -7,7 +7,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Collector;
 
-import frc.robot.PhotonCameraWrapper;
+// import frc.robot.PhotonCameraWrapper;
 import frc.robot.Constants.AutoK;
 import frc.robot.Vision.VisionMeasurement;
 
@@ -342,7 +342,7 @@ public class SwerveSubsystem extends SubsystemBase{
         m_poseEstimator.resetPosition(m_gyro.getRotation2d(), 
         getModulePositions(), 
         new Pose2d(new Translation2d(0,0), 
-        Rotation2d.fromDegrees(180)));
+        Rotation2d.fromDegrees(0)));
 
     }
 
@@ -393,7 +393,7 @@ public class SwerveSubsystem extends SubsystemBase{
             // SmartDashboard.putNumber(mod.moduleName + "Desired Angle", mod.getAbsoluteAngle().getRadians());
             // SmartDashboard.putNumber(mod.moduleName +"Desired Velocity", mod.getDriveVelocity());
             
-            SmartDashboard.putNumber(mod.moduleName +"Angle", mod.getAngle());
+            Logger.recordOutput(mod.moduleName +"Angle", mod.getAngle());
             
         }
         Logger.recordOutput("Pose", getPose());

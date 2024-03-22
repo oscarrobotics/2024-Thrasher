@@ -44,7 +44,8 @@ public class Robot extends LoggedRobot {
 
   private Command m_autonomousCommand;
 
-  private static final String LOG_DIRECTORY = "/home/lvuser/logs";
+  // private static final String LOG_DIRECTORY = "/home/lvuser/logs";
+  private static final String LOG_DIRECTORY ="/media/sda1/";
 
   // private static final String kDefaultAuto = "Default";
   // private static final String kCustomAuto = "My Auto";
@@ -63,6 +64,7 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
 
     if (isReal()) {
+      // if LOG_DIRECTORY.
       Logger.addDataReceiver(new WPILOGWriter(LOG_DIRECTORY));
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
       new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
@@ -80,7 +82,7 @@ public class Robot extends LoggedRobot {
     URCL.start();
 
     DriverStation.startDataLog(DataLogManager.getLog());
-    Pathfinding.setPathfinder(new LocalADStarAK());
+    // Pathfinding.setPathfinder(new LocalADStarAK());
 
     // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     // m_chooser.addOption("My Auto", kCustomAuto);

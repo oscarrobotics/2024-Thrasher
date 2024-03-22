@@ -16,13 +16,13 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Swerve.SwerveSubsystem;
 
-public class PhotonCameraWrapper {
+public class PhotonCameraWrapper_dep {
     private PhotonCamera photonCamera;
     private PhotonPoseEstimator photonPoseEstimator;
 
-    static PhotonCameraWrapper instance; 
+    static PhotonCameraWrapper_dep instance; 
 
-    public PhotonCameraWrapper(String cameraName, Transform3d cameraOffset){
+    public PhotonCameraWrapper_dep(String cameraName, Transform3d cameraOffset){
         photonCamera = new PhotonCamera(cameraName);
 
         AprilTagFieldLayout fieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();

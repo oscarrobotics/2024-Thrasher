@@ -19,7 +19,7 @@ public class Outtake_note extends Command {
     public Outtake_note(Intake intake, Sled sled){
         this.m_intake = intake;
         this.m_sled = sled;
-        this.runtime = 2;
+        this.runtime = 1.5;
         addRequirements(intake, sled);
 
         isFirstExecute = true;

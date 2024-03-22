@@ -87,12 +87,12 @@ public class Intake extends SubsystemBase{
     // }
 
     public void intake(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(35));
     }
     public void outtake(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(-35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(-35));
     }  
     public void stop(){
         m_frontIntakeMotor.setControl(m_request.withVelocity(0));

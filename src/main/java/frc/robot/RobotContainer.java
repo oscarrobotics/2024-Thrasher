@@ -55,7 +55,7 @@ public class RobotContainer {
     public final Sled m_sled = new Sled();
     
 
-    public final Vision m_vision = new Vision(m_swerve::addVisionMeasurement);
+    // public final Vision m_vision = new Vision(m_swerve::addVisionMeasurement);
     // public final Notifier m_visionloop = new Notifier(m_vision::run);
     // public final Intake m_intake = new Intake();
     // public final Sled m_sled = new Sled();
@@ -64,17 +64,19 @@ public class RobotContainer {
     public final Intake_note intake = new Intake_note(m_intake, m_sled);
     public final Outtake_note outtake = new Outtake_note(m_intake, m_sled);
     public final Unjam_note unjam = new Unjam_note(m_intake, m_sled);
-    public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
+    // public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
     public final Sideload_note sideload_note = new Sideload_note(m_intake, m_sled);
     public final Ampload_note   ampload_note = new Ampload_note(m_shooter, m_sled);
     public final Ampfire ampfire = new Ampfire(m_shooter, m_sled);
+    
 
 
-    Command ShootCmd;
+    // Command ShootCmd;
+    public final Shoot_note ShootCmd = new Shoot_note(m_shooter,m_sled);
 
     public RobotContainer(){
       DriverStation.silenceJoystickConnectionWarning(true);
-      m_vision.runner().schedule();
+      // m_vision.runner().schedule();
     // ShootCmd = new RunCommand(
     //     () -> m_shooter.shootNote()).withTimeout(0.1)
     //     .andThen(new WaitCommand(1))
@@ -82,19 +84,20 @@ public class RobotContainer {
     //     .andThen(new WaitCommand(1))
     //     .andThen(() -> m_shooter.stop())
     //     .finallyDo(() -> m_sled.stop());
-   ShootCmd = new SequentialCommandGroup(
+  //  ShootCmd = new SequentialCommandGroup(
 
       
-        new InstantCommand(()->m_shooter.tilt_strait()),
-        new WaitCommand(0.4).until(()->m_shooter.isShootAligned()),
-        new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
-        new WaitCommand(0.5),
-        new InstantCommand( () ->m_sled.runSled(), m_sled),
-        new WaitCommand(1),
-        new ParallelCommandGroup(
-        new InstantCommand(() -> m_shooter.stop(), m_shooter),
-        new InstantCommand(() -> m_sled.stop(), m_sled))
-   );
+  //       new InstantCommand(()->m_shooter.tilt_strait()),
+  //       new WaitCommand(0.4).until(()->m_shooter.isShootAligned()),
+  //       new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
+  //       new WaitCommand(0.5),
+  //       new InstantCommand( () ->m_sled.runSled(), m_sled),
+  //       new WaitCommand(1),
+  //       new ParallelCommandGroup(
+  //       new InstantCommand(() -> m_shooter.stop(), m_shooter),
+  //       new InstantCommand(() -> m_sled.stop(), m_sled))
+  //  );
+      
   
     m_swerve.setDefaultCommand(
       m_swerve.teleopDrive(
@@ -130,13 +133,13 @@ public class RobotContainer {
     // m_operator.a().onTrue() -> something to do with shoot or intake
 
     // m_operator.sc1().onTrue(sideload_note);
-    // m_operator.sc2().onTrue(ampload_note);
+    m_operator.sc2().onTrue(ampload_note);
 
     // m_operator.sc2().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(100), m_shooter)
     // .andThen(new WaitCommand(2))
     // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
 
-    // m_operator.sc3().onTrue(ampfire);
+    m_operator.sc3().onTrue(ampfire);
 
     // m_operator.sc3().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(1000), m_shooter)
     // .andThen(new WaitCommand(2))
@@ -150,16 +153,16 @@ public class RobotContainer {
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
     // Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
 
-    m_operator.sc1().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*5/6)))));
-    m_operator.sc2().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI)))));
-    m_operator.sc3().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*7/6)))));
-    m_operator.sc4().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*-5/6)))));
-    m_operator.sc5().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*-7/6)))));
+    // m_operator.sc1().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(-Math.PI*5/6)))));
+    // m_operator.sc2().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI)))));
+    // m_operator.sc3().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(-Math.PI*7/6)))));
+    // m_operator.sc4().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*5/6)))));
+    // m_operator.sc5().onTrue( new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0,0), new Rotation2d(Math.PI*7/6)))));
     
     m_sled.setDefaultCommand(
     
       m_sled.rotateSled(
-        () -> (-m_operator.getLeftSlider() + 1) / 2 * 50
+        () -> (-m_operator.getLeftSlider() + 1) / 2 * 48 + 2
       )
 
     );  
@@ -219,11 +222,11 @@ public class RobotContainer {
 
    public Command getAutoCommand1BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*5/6)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*5/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
-      new WaitCommand(0.5),
+      new WaitCommand(0.9),
       new InstantCommand(() -> m_swerve.drive(0, -0.9, 0, false), m_swerve),
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
@@ -234,7 +237,7 @@ public class RobotContainer {
 
     public Command getAutoCommand2BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
@@ -249,7 +252,7 @@ public class RobotContainer {
 
    public Command getAutoCommand3BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*7/6)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*7/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
@@ -263,7 +266,7 @@ public class RobotContainer {
   }
   public Command getAutoCommand1RED(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*-5/6)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*5/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
@@ -278,7 +281,7 @@ public class RobotContainer {
 
     public Command getAutoCommand2RED(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
@@ -293,7 +296,7 @@ public class RobotContainer {
 
    public Command getAutoCommand3RED(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*7/6)))),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*7/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
