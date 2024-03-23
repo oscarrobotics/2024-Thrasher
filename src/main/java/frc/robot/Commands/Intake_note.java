@@ -27,7 +27,7 @@ public class Intake_note extends Command {
     public Intake_note(Intake intake, Sled sled){
         this.m_intake = intake;
         this.m_sled = sled;
-        this.runtime = 1.2;
+        this.runtime = 3;
         addRequirements(intake, sled);
 
         // parallel = new ParallelRaceGroup(m_intake.intakeCommand(), m_sled.feed());
@@ -85,7 +85,7 @@ public class Intake_note extends Command {
     @Override
     public boolean isFinished(){
         //if exceeds delta t: stop
-        return m_timer.hasElapsed(runtime) || m_backtimer.hasElapsed(0.3);  
+        return m_timer.hasElapsed(runtime) || m_backtimer.hasElapsed(0.08);  
      
     }
 
