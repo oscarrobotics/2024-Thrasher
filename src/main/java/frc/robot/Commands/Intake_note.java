@@ -56,6 +56,7 @@ public class Intake_note extends Command {
         m_backtimer.reset();
         m_timer.start();
         isFirstLoad = true;
+        m_sled.interruptRequest=false;
       
     }
     @Override
@@ -65,7 +66,7 @@ public class Intake_note extends Command {
             m_intimer.restart();
             isFirstExecute = false;
         }
-        if(!m_intimer.hasElapsed(1.2)){
+        if(!m_intimer.hasElapsed(1.2) && !m_sled.interruptRequest){
             m_intake.intake();
             m_sled.runSled();
             m_backtimer.restart();
@@ -74,7 +75,7 @@ public class Intake_note extends Command {
             
 
         }
-        if (m_intimer.hasElapsed(1.2)&&!m_backtimer.hasElapsed(0.1)) {
+        if ((m_intimer.hasElapsed(1.2) || m_sled.interruptRequest)&&!m_backtimer.hasElapsed(0.1)) {
 
         m_sled.unrunSled();
             
@@ -85,7 +86,7 @@ public class Intake_note extends Command {
     @Override
     public boolean isFinished(){
         //if exceeds delta t: stop
-        return m_timer.hasElapsed(runtime) || m_backtimer.hasElapsed(0.08);  
+        return m_timer.hasElapsed(runtime) || m_backtimer.hasElapsed(0.10);  
      
     }
 
