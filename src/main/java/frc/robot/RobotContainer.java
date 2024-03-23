@@ -240,12 +240,27 @@ public class RobotContainer {
     );
   }
 
-    public Command getAutoCommand2BLUE(){
+  //   public Command getAutoCommand2BLUE(){
+  //   return new SequentialCommandGroup(
+  //     new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI))), m_swerve),
+  //     ShootCmd,
+  //     new WaitCommand(0.5),
+  //     new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
+  //     new WaitCommand(0.5),
+  //     new InstantCommand(() -> m_swerve.drive(1, 1, 0, false), m_swerve),
+  //     new WaitCommand(0.5),
+  //     new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false ), m_swerve),
+  //     new WaitCommand(1),
+  //     new InstantCommand(() -> m_swerve.stop(), m_swerve)
+  //   );
+  // }
+
+  public Command getAutoCommand22BLUE(){
     return new SequentialCommandGroup(
       new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve),
+      new ParallelCommandGroup(intake, new InstantCommand(() -> m_swerve.drive(1, 0, 0, false ), m_swerve)),
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, 1, 0, false), m_swerve),
       new WaitCommand(0.5),

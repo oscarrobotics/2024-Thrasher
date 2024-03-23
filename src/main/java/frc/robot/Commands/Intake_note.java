@@ -65,7 +65,7 @@ public class Intake_note extends Command {
             m_intimer.restart();
             isFirstExecute = false;
         }
-        if(!m_intimer.hasElapsed(1.2)){
+        if(!m_intimer.hasElapsed(1.2) && !m_sled.interruptRequest){
             m_intake.intake();
             m_sled.runSled();
             m_backtimer.restart();
@@ -74,7 +74,7 @@ public class Intake_note extends Command {
             
 
         }
-        if (m_intimer.hasElapsed(1.2)&&!m_backtimer.hasElapsed(0.1)) {
+        if ((m_intimer.hasElapsed(1.2) || m_sled.interruptRequest)&&!m_backtimer.hasElapsed(0.1)) {
 
         m_sled.unrunSled();
             
