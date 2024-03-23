@@ -184,11 +184,11 @@ public class Sled extends SubsystemBase{
     }
 
     public void runSled(){
-        m_sledMotor.setControl(m_request.withVelocity(-100));
+        m_sledMotor.setControl(m_request.withVelocity(-80));
     }
 
     public void unrunSled(){
-        m_sledMotor.setControl(m_request.withVelocity(100));
+        m_sledMotor.setControl(m_request.withVelocity(80));
     }
 
     public void stop(){

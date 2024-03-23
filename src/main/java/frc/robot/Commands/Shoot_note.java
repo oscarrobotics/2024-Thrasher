@@ -50,7 +50,7 @@ public class Shoot_note extends Command{
             isFirstExecute = false;
         }
         m_shooter.shootNote();
-        if(m_timer.hasElapsed(0.5)){
+        if(m_timer.hasElapsed(0.8)){
             m_sled.runSled();
             // m_timer.reset();
         }
@@ -59,7 +59,7 @@ public class Shoot_note extends Command{
     @Override
     public boolean isFinished() {
         // TODO Auto-generated method stub
-        return m_timer.hasElapsed(1.5);
+        return m_timer.hasElapsed(1.8);
     }
     
     @Override

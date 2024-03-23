@@ -168,9 +168,14 @@ public class RobotContainer {
     );  
 
 
+    // m_shooter.setDefaultCommand(
+    //   m_shooter.tilt_Shooter(
+    //     () -> (m_operator.getRightSlider() + 1) / 2 * 0.490 + 0.251
+    //   )
+    // );
     m_shooter.setDefaultCommand(
       m_shooter.tilt_Shooter(
-        () -> (m_operator.getRightSlider() + 1) / 2 * 0.490 + 0.251
+        () -> (0.488 + 0.1*m_operator.getRightSlider())
       )
     );
 
