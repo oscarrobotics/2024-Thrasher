@@ -58,7 +58,7 @@ public class Sled extends SubsystemBase{
 
     private TalonFX m_sledMotor;
 
-    public DigitalInput m_sledBeamBreaker;
+    public DigitalInput m_sledBeamBreaker = new DigitalInput(0);
 
     DoublePublisher T_targetAngle;
     DoublePublisher T_sledPivotControllerOutput;
@@ -83,6 +83,8 @@ public class Sled extends SubsystemBase{
 
     public Sled(){
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
+
+        
         NetworkTable NT = inst.getTable("Sled");
         T_sledPivot = NT.getDoubleTopic("sledPivot").publish();
         T_sledBreak = NT.getBooleanTopic("SledBreak").publish();
@@ -153,7 +155,7 @@ public class Sled extends SubsystemBase{
         m_potfilter.reset(new double[]{getPivotVoltage()},new double[]{getPivotVoltage()} 
         );
 
-        m_sledBeamBreaker = new DigitalInput(0);
+        // m_sledBeamBreaker = new DigitalInput(0);
 
 
         // sledBeamBreakTrig = new Trigger(eventLoop, () -> interruptRequest);
@@ -207,7 +209,7 @@ public class Sled extends SubsystemBase{
     }
 
     public void unrunSled(){
-        m_sledMotor.setControl(m_request.withVelocity(80));
+        m_sledMotor.setControl(m_request.withVelocity(40));
     }
 
     public void stop(){
@@ -260,11 +262,13 @@ public class Sled extends SubsystemBase{
             sledBeamBreakIrqLastFalling = curFalling;
         }
 
-        if( curFalling > curRising && newRising){
+        if( curFalling < curRising && newRising){
             interruptRequest = true;
-        }else if(curRising > curFalling && newRising){
+        }else if(curRising < curFalling && newRising){
             interruptRequest = false;
         }
+        Logger.recordOutput("rising Timestamp", curRising);
+        Logger.recordOutput("falling Timestamp", curFalling);
 
         T_sensorBB.set(interruptRequest);
     }
