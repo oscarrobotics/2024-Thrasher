@@ -7,12 +7,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Collector;
 
-import frc.robot.PhotonCameraWrapper;
 import frc.robot.Constants.AutoK;
-import frc.robot.Vision.VisionMeasurement;
 
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -347,7 +344,7 @@ public class SwerveSubsystem extends SubsystemBase{
 
     public void updateOdometry(){
         m_poseEstimator.update(m_gyro.getRotation2d(), getModulePositions());
-        
+    }
        
         // Optional<EstimatedRobotPose> result = 
         // pcw.getEstimatedGlobalPose(m_poseEstimator.getEstimatedPosition());
@@ -358,14 +355,11 @@ public class SwerveSubsystem extends SubsystemBase{
         //             camPose.estimatedPose.toPose2d(), camPose.timestampSeconds);
         // }
         
-    }
-    public void addVisionMeasurement(VisionMeasurement measurement){
-        m_poseEstimator.addVisionMeasurement(
-			measurement.measure(), measurement.latency(), measurement.stdDevs());
+    
         
 
 
-    }
+    
 
     public void stop() {
 		drive(0, 0, 0, true );
@@ -386,11 +380,17 @@ public class SwerveSubsystem extends SubsystemBase{
         
         for(SwerveModule mod : m_modules){
             // SmartDashboard.putNumber(mod.moduleName + "Desired Angle", mod.getAbsoluteAngle().getRadians());
-            // SmartDashboard.putNumber(mod.moduleName +"Desired Velocity", mod.getDriveVelocity());
+            SmartDashboard.putNumber(mod.moduleName +"Velocity", mod.getDriveVelocity());
             
             SmartDashboard.putNumber(mod.moduleName +"Angle", mod.getAngle());
+            // SmartDashboard.putNumber(mod.modulename +"Actual Velocity", mod.getDriveVelocity) 
+ 
+
             
         }
+
+
+
         Logger.recordOutput("Pose", getPose());
         Logger.recordOutput("Chassis Speeds", getChassisSpeeds());
         //record the motor power vs the comanamed percentage of the max speed

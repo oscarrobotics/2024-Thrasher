@@ -54,7 +54,6 @@ public class RobotContainer {
     public final Sled m_sled = new Sled();
     
 
-    public final Vision m_vision = new Vision(m_swerve::addVisionMeasurement);
     // public final Notifier m_visionloop = new Notifier(m_vision::run);
     // public final Intake m_intake = new Intake();
     // public final Sled m_sled = new Sled();
@@ -73,7 +72,6 @@ public class RobotContainer {
 
     public RobotContainer(){
       DriverStation.silenceJoystickConnectionWarning(true);
-      m_vision.runner().schedule();
     // ShootCmd = new RunCommand(
     //     () -> m_shooter.shootNote()).withTimeout(0.1)
     //     .andThen(new WaitCommand(1))
@@ -94,7 +92,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_shooter.stop(), m_shooter),
         new InstantCommand(() -> m_sled.stop(), m_sled))
    );
-  
+  /// swerve
     m_swerve.setDefaultCommand(
       m_swerve.teleopDrive(
         () -> m_driverController.getLeftY(),
@@ -105,6 +103,7 @@ public class RobotContainer {
       )
      
     );
+    ///driving
     m_driverController.y().onTrue(new InstantCommand(() -> m_swerve.resetOdometry(), m_swerve) );
     m_driverController.b().whileTrue(
       m_swerve.evasiveDrive(
@@ -117,7 +116,9 @@ public class RobotContainer {
       
     );
     m_driverController.x().onTrue(new InstantCommand(()->toggleDriveMode()));
+   ///Left bumper intake
     m_driverController.leftBumper().onTrue(intake);
+   ///Backtop right bumper
     m_driverController.rightBumper().onTrue(ShootCmd);
 
     m_operator.arcadeWhiteLeft().onTrue(intake);
@@ -190,6 +191,7 @@ public class RobotContainer {
   //     xController,
   //     yController,
   //     thetaController, 
+  
   //     m_swerve::setModuleStates, 
   //     m_swerve
   //   );
