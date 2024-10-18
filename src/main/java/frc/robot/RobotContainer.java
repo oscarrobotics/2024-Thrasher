@@ -28,7 +28,6 @@ import frc.robot.Commands.Intake_note;
 import frc.robot.Commands.Outtake_note;
 import frc.robot.Commands.Shoot_note;
 import frc.robot.Commands.Unjam_note;
-import frc.robot.Commands.Sideload_note;
 import frc.robot.Commands.*;
 import frc.robot.Constants.AutoK;
 import frc.robot.Subsystems.Intake;
@@ -63,9 +62,9 @@ public class RobotContainer {
     public final Outtake_note outtake = new Outtake_note(m_intake, m_sled);
     public final Unjam_note unjam = new Unjam_note(m_intake, m_sled);
     public final Shoot_note shoot = new Shoot_note(m_shooter, m_sled);
-    public final Sideload_note sideload_note = new Sideload_note(m_intake, m_sled);
-    public final Ampload_note   ampload_note = new Ampload_note(m_shooter, m_sled);
-    public final Ampfire ampfire = new Ampfire(m_shooter, m_sled);
+    // public final Sideload_note sideload_note = new Sideload_note(m_intake, m_sled);
+    // public final Ampload_note   ampload_note = new Ampload_note(m_shooter, m_sled);
+    // public final Ampfire ampfire = new Ampfire(m_shooter, m_sled);
 
 
     Command ShootCmd;
@@ -82,8 +81,6 @@ public class RobotContainer {
    ShootCmd = new SequentialCommandGroup(
 
       
-        new InstantCommand(()->m_shooter.tilt_strait()),
-        new WaitCommand(0.4).until(()->m_shooter.isShootAligned()),
         new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
         new WaitCommand(0.5),
         new InstantCommand( () ->m_sled.runSled(), m_sled),
@@ -127,17 +124,9 @@ public class RobotContainer {
     // m_driverController.povDown().onTrue(m_sled.tilt_down());
     m_operator.arcadeBlackRight().onTrue(unjam);
     m_operator.arcadeWhiteRight().onTrue(ShootCmd);
-    // m_operator.a().onTrue() -> something to do with shoot or intake
+ 
 
-    m_operator.sc1().onTrue(sideload_note);
-    m_operator.sc2().onTrue(ampload_note);
-    // m_operator.sc2().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(100), m_shooter)
-    // .andThen(new WaitCommand(2))
-    // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
-    m_operator.sc3().onTrue(ampfire);
-    // m_operator.sc3().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(1000), m_shooter)
-    // .andThen(new WaitCommand(2))
-    // .andThen(new InstantCommand(()->m_shooter.zero_speed())) );
+   
     m_operator.sc4().onTrue(new InstantCommand(()->m_shooter.shootNote_speed(), m_shooter)
     .andThen(new WaitCommand(2))
     .andThen(new InstantCommand(()->m_shooter.zero_speed()))
@@ -155,11 +144,7 @@ public class RobotContainer {
     );  
 
 
-    m_shooter.setDefaultCommand(
-      m_shooter.tilt_Shooter(
-        () -> (m_operator.getRightSlider() + 1) / 2 * 0.490 + 0.251
-      )
-    );
+  
 
   }
   

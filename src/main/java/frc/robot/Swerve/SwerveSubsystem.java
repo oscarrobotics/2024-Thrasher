@@ -397,6 +397,7 @@ public class SwerveSubsystem extends SubsystemBase{
         for (SwerveModule mod : m_modules){
             Logger.recordOutput("Motor Speed Percentage "+mod.moduleName, mod.getDriveVelocity()/Constants.kPhysicalMaxSpeedMetersPerSecond);
             Logger.recordOutput("Motor Applied Power "+mod.moduleName, mod.getMotorAppliedOutput());
+            Logger.recordOutput("Motor power per RPM"+mod.moduleName, mod.getMotorAppliedOutput()/mod.getDriveVelocity());
         }
         
         
