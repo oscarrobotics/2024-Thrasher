@@ -17,14 +17,17 @@ public class Intake_note extends Command {
     private Sled m_sled;
     private double runtime;
     private boolean isFirstExecute;
+    private boolean isFirstLoad;
     private Timer m_timer = new Timer();
+    private Timer m_backtimer = new Timer();
+    private Timer m_intimer = new Timer();
  
     private ParallelRaceGroup parallel;
 
     public Intake_note(Intake intake, Sled sled){
         this.m_intake = intake;
         this.m_sled = sled;
-        this.runtime = 2;
+        this.runtime = 3;
         addRequirements(intake, sled);
 
         // parallel = new ParallelRaceGroup(m_intake.intakeCommand(), m_sled.feed());
@@ -37,6 +40,8 @@ public class Intake_note extends Command {
         this.runtime = time;
         addRequirements(intake, sled);
         isFirstExecute = true;
+        isFirstLoad = true;
+    
 
 
     }
@@ -48,23 +53,40 @@ public class Intake_note extends Command {
         isFirstExecute = true;
         m_sled.goToIntakePose();
         m_timer.reset();
+        m_backtimer.reset();
         m_timer.start();
+        isFirstLoad = true;
+        m_sled.interruptRequest=false;
       
     }
     @Override
     public void execute(){
         if(isFirstExecute){
             m_timer.reset();
+            m_intimer.restart();
             isFirstExecute = false;
         }
-        m_intake.intake();
-        m_sled.runSled();
+        if(!m_intimer.hasElapsed(1.2) && !m_sled.interruptRequest){
+            m_intake.intake();
+            m_sled.runSled();
+            m_backtimer.restart();
+            isFirstLoad = false;
+
+            
+
+        }
+        if ((m_intimer.hasElapsed(1.2) || m_sled.interruptRequest)&&!m_backtimer.hasElapsed(0.1)) {
+
+        m_sled.unrunSled();
+            
+        }
+
     }
 
     @Override
     public boolean isFinished(){
         //if exceeds delta t: stop
-        return m_timer.hasElapsed(runtime) || m_sled.isInSled();  
+        return m_timer.hasElapsed(runtime) || m_backtimer.hasElapsed(0.10);  
      
     }
 
