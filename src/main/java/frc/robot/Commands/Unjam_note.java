@@ -24,7 +24,7 @@ public class Unjam_note extends Command {
     public Unjam_note(Intake intake, Sled sled){
         this.m_intake = intake;
         this.m_sled = sled;
-        this.runtime = 0.5;
+        this.runtime = 0.1;
         addRequirements(intake, sled);
         // parallel = new ParallelRaceGroup(m_intake.intakeCommand(), m_sled.feed());
 

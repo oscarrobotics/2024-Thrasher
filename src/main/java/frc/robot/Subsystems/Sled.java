@@ -4,6 +4,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import javax.swing.text.Position;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.StatusCode;
@@ -12,6 +14,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -46,15 +49,19 @@ public class Sled extends SubsystemBase{
     private TalonFX m_leftSledPivotMotor, m_rightSledPivotMotor;
 
 
-    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(240, 80);
+    private TrapezoidProfile.Constraints m_Sledconstraints = new TrapezoidProfile.Constraints(245,80);
 
     private ProfiledPIDController m_Sledcontroller = 
-        new ProfiledPIDController(0.08, 0.003, 0.002, m_Sledconstraints, 0.02); 
+        new ProfiledPIDController(0.05, 0.0027, 0.0025, m_Sledconstraints, 0.02); 
 
     private LinearFilter m_potfilter = LinearFilter.singlePoleIIR(0.01, 0.02);
     
     
     private VoltageOut motorRequest = new VoltageOut(0.0); 
+
+    private PositionVoltage positionRequPosition = new PositionVoltage(0);
+
+    private double targetos = 0;
 
     private TalonFX m_sledMotor;
 
@@ -79,6 +86,8 @@ public class Sled extends SubsystemBase{
     private double sledBeamBreakIrqLastRising = 0;
     private double sledBeamBreakIrqLastFalling = 0;
     private final SynchronousInterrupt beamBreakInterrupt = new SynchronousInterrupt(m_sledBeamBreaker);
+
+    private double startingpos = 0;
     // private final Trigger sledBeamBreakTrig;
 
     public Sled(){
@@ -106,6 +115,9 @@ public class Sled extends SubsystemBase{
 
         pivotConfig.Voltage.PeakForwardVoltage = 2;
         pivotConfig.Voltage.PeakReverseVoltage = -2; 
+        pivotConfig.CurrentLimits.SupplyCurrentLimit=0.5;
+        pivotConfig.CurrentLimits.SupplyCurrentLimitEnable=true;
+        pivotConfig.CurrentLimits.SupplyTimeThreshold= 0.3;
 
         StatusCode pivotStatus = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
@@ -149,8 +161,10 @@ public class Sled extends SubsystemBase{
         // m_leftSledPivotMotor.optimizeBusUtilization();
         // m_sledMotor.optimizeBusUtilization();
 
-        m_Sledcontroller.reset(getSledPivotAngle());
-        m_Sledcontroller.setGoal(getSledPivotAngle());
+        startingpos = m_leftSledPivotMotor.getPosition().getValueAsDouble();  
+
+        m_Sledcontroller.reset(startingpos);
+        m_Sledcontroller.setGoal(startingpos);
 
         m_potfilter.reset(new double[]{getPivotVoltage()},new double[]{getPivotVoltage()} 
         );
@@ -160,6 +174,7 @@ public class Sled extends SubsystemBase{
 
         // sledBeamBreakTrig = new Trigger(eventLoop, () -> interruptRequest);
         beamBreakInterrupt.setInterruptEdges(true, true);
+
 
         T_targetAngle = NT.getDoubleTopic("targetAngle").publish();
         T_sledPivotControllerOutput = NT.getDoubleTopic("sledPivotControllerOutput").publish();
@@ -235,15 +250,26 @@ public class Sled extends SubsystemBase{
         
     }
 
-    public Command tilt_to(double angle){
-        return runOnce(()->{setTargetSledPivot(angle);}).withTimeout(1);
+    // public Command tilt_to(double angle){
+    //     return runOnce(()->{setTargetSledPivot(angle);}).withTimeout(1);
+    // }
+
+    public Command tilt_to_new(double angle){
+        return runOnce(()->{setTargetSledPivot(startingpos+angle);}).withTimeout(1);
     }
 
-
+    // public Command 
+    // rotateSled(Supplier<Double> sledangle){
+    //     return run(
+    //     () -> {targetos = startingpos+sledangle.get()}
+    //     );
+        
+    // }
+    
     public Command 
-    rotateSled(Supplier<Double> sledangle){
+    rotateSled_new(Supplier<Double> sledangle){
         return run(
-        () -> {setTargetSledPivot(sledangle.get());}
+        () -> {setTargetSledPivot(startingpos+sledangle.get());}
         );
         
     }
@@ -283,10 +309,15 @@ public class Sled extends SubsystemBase{
 
         // m_shootPivotMotor.setControl(motorRequest.withOutput(m_controller.calculate(m_absoluteEncoder.get())));
         
-        double sledPivotControllerOutput = m_Sledcontroller.calculate(m_potfilter.calculate(getSledPivotAngle()));
+        // double sledPivotControllerOutput = m_Sledcontroller.calculate(m_potfilter.calculate(m_leftSledPivotMotor.getPosition().getValueAsDouble()));
         // T_sledPivotControllerOutput.set(sledPivotControllerOutput);
-        m_leftSledPivotMotor.setControl(motorRequest.withOutput(12*sledPivotControllerOutput)); 
+        // m_leftSledPivotMotor.setControl(motorRequest.withOutput(12*sledPivotControllerOutput)); 
+        // m_leftSledPivotMotor.setControl(motorRequest.withOutput(sledPivotControllerOutput))
         // SmartDashboard.putNumber("Piv outpt", sledPivotControllerOutput);
+        
+    
+        m_leftSledPivotMotor.setControl(new PositionVoltage(m_leftSledPivotMotor.getPosition().getValueAsDouble()) );
+
         SmartDashboard.putNumber("Angle", m_potfilter.lastValue()); 
 
         // T_sledBreak.set(get_beam());

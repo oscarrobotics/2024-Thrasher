@@ -80,14 +80,17 @@ public class RobotContainer {
     //     .finallyDo(() -> m_sled.stop());
    ShootCmd = new SequentialCommandGroup(
 
-      
+        unjam,
         new InstantCommand( () -> m_shooter.shootNote(), m_shooter),
         new WaitCommand(0.5),
         new InstantCommand( () ->m_sled.runSled(), m_sled),
+        new InstantCommand( ()->m_intake.intake(),m_intake),
         new WaitCommand(1),
         new ParallelCommandGroup(
         new InstantCommand(() -> m_shooter.stop(), m_shooter),
-        new InstantCommand(() -> m_sled.stop(), m_sled))
+        new InstantCommand(() -> m_sled.stop(), m_sled),
+        new InstantCommand( ()->m_intake.stop(),m_intake)
+        )
    );
   /// swerve
     m_swerve.setDefaultCommand(
@@ -113,10 +116,12 @@ public class RobotContainer {
       
     );
     m_driverController.x().onTrue(new InstantCommand(()->toggleDriveMode()));
+    m_driverController.povDown().onTrue(unjam);
    ///Left bumper intake
     m_driverController.leftBumper().onTrue(intake);
    ///Backtop right bumper
     m_driverController.rightBumper().onTrue(ShootCmd);
+
 
     m_operator.arcadeWhiteLeft().onTrue(intake);
     m_operator.arcadeBlackLeft().onTrue(outtake);
@@ -135,13 +140,22 @@ public class RobotContainer {
     // Supplier<Double> leftslider = () -> m_operator.getRawAxis(0); 
     // Supplier<Double> rightslider = () -> m_operator.getRawAxis(1);
     
+    // m_sled.setDefaultCommand(
+    
+    //   m_sled.rotateSled(
+    //     () -> (-m_operator.getLeftSlider() + 1) / 2 * 45+5
+    //   )
+        
+
+    // );  
+
     m_sled.setDefaultCommand(
     
-      m_sled.rotateSled(
-        () -> (-m_operator.getLeftSlider() + 1) / 2 * 50
-      )
+      m_sled.rotateSled_new(
+        () -> (-m_operator.getLeftSlider() *10))
+        
 
-    );  
+    );
 
 
   
@@ -195,7 +209,7 @@ public class RobotContainer {
 
    public Command getAutoCommand1BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*5/6))), m_swerve),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*7/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, -1.7, 0, false), m_swerve),
@@ -240,7 +254,7 @@ public class RobotContainer {
 
    public Command getAutoCommand3BLUE(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*7/6))), m_swerve),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(-Math.PI*5/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
@@ -254,7 +268,7 @@ public class RobotContainer {
   }
   public Command getAutoCommand1RED(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*5/6))), m_swerve),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*7/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(1, 1.7, 0, false), m_swerve),
@@ -285,18 +299,19 @@ public class RobotContainer {
 
    public Command getAutoCommand3RED(){
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*7/6))), m_swerve),
+      new InstantCommand(() -> m_swerve.resetOdometry(new Pose2d(new Translation2d(0.8,6.542), new Rotation2d(Math.PI*5/6))), m_swerve),
       ShootCmd,
       new WaitCommand(0.5),
       new InstantCommand(() -> m_swerve.drive(2, 0, 0, false ), m_swerve),
       new WaitCommand(1),
-      new InstantCommand(() -> m_swerve.drive(1.7, 0.9, 0, false), m_swerve),
+      new InstantCommand(() -> m_swerve.drive(1.5, -0.9, 0, false), m_swerve),
       new WaitCommand(1),
-      new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false), m_swerve),
-      new WaitCommand(1),
+      // new InstantCommand(() -> m_swerve.drive(1.3, 0, 0, false), m_swerve),
+      // new WaitCommand(1),
       new InstantCommand(() -> m_swerve.stop(), m_swerve)
     );
   }
+
 
   
   private void toggleDriveMode(){
@@ -311,7 +326,7 @@ public class RobotContainer {
           )
         
         );
-        
+        System.out.println("directed drive");
         m_normalDrive = false;
 
       } else {
@@ -325,6 +340,7 @@ public class RobotContainer {
           )
         );
         m_normalDrive = true;
+        System.out.println("field drive");
       }
     
   } 

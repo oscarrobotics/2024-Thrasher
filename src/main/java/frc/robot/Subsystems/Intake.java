@@ -49,8 +49,11 @@ public class Intake extends SubsystemBase{
         config.Slot0.kD = 0.0;
         config.Slot0.kV = 0.12;
 
-        config.Voltage.PeakForwardVoltage = 8;
-        config.Voltage.PeakReverseVoltage = -8; 
+        config.Voltage.PeakForwardVoltage = 7;
+        config.Voltage.PeakReverseVoltage = -7; 
+
+        config.CurrentLimits.StatorCurrentLimit = 60;
+        config.CurrentLimits.StatorCurrentLimitEnable= true;
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
@@ -87,25 +90,25 @@ public class Intake extends SubsystemBase{
     // }
 
     public void intake(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(35));
     }
     public void outtake(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(-35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(-35));
     }  
     public void stop(){
         m_frontIntakeMotor.setControl(m_request.withVelocity(0));
         m_rearIntakeMotor.setControl(m_request.withVelocity(0));
     }
     public void rollforward(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(-40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(-35));
     
     }
     public void rollbackward(){
-        m_frontIntakeMotor.setControl(m_request.withVelocity(-40));
-        m_rearIntakeMotor.setControl(m_request.withVelocity(40));
+        m_frontIntakeMotor.setControl(m_request.withVelocity(-35));
+        m_rearIntakeMotor.setControl(m_request.withVelocity(35));
     }
 
     public Command intakeCommand(){
